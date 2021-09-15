@@ -27,51 +27,53 @@
 
 using Ints = std::vector<int>;
 
-
-void printToScreen( Ints const& ints )
+void printToScreen(Ints const& ints)
 {
-   // TODO
+    std::for_each(ints.cbegin(), ints.cend(),
+        [](const auto& el) { std::cout << el << '\t'; });
+    std::cout << '\n';
 }
 
-
-void reverseOrder( Ints& ints )
+void reverseOrder(Ints& ints)
 {
-   // TODO
+    std::reverse(ints.begin(), ints.end());
+    printToScreen(ints);
 }
 
-
-void findFirstFive( Ints const& ints )
+void findFirstFive(Ints const& ints)
 {
-   // TODO
+    auto firstFiveInVector = std::find(ints.cbegin(), ints.cend(), 5);
+    if (firstFiveInVector != ints.cend()) {
+        std::cout << "found first 5 at position: " << std::distance(ints.begin(), firstFiveInVector) << '\n';
+    }
 }
 
-
-void countNumberOfFives( Ints const& ints )
+void countNumberOfFives(Ints const& ints)
 {
-   // TODO
+    const auto fivesCounter = std::count(ints.cbegin(), ints.cend(), 5);
+    std::cout << "This cointainer contains " << fivesCounter << " fives\n";
 }
 
-
-void replaceAllFivesWithTwos( Ints& ints )
+void replaceAllFivesWithTwos(Ints& ints)
 {
-   // TODO
+    const auto oldValue = 5;
+    const auto newValue = 2;
+    std::replace(ints.begin(), ints.end(), oldValue, newValue);
+    printToScreen(ints);
 }
 
-
-void sortInts( Ints& ints )
+void sortInts(Ints& ints)
 {
-   // TODO
+    std::sort(ints.begin(), ints.end());
+    printToScreen(ints);
 }
 
-
-void findAllTwos( Ints const& ints )
+void findAllTwos(Ints const& ints)
 {
-   // TODO
+    auto firstTwo = std::lower_bound(ints.begin(), ints.end(), 2);
+    auto lastTwo = std::upper_bound(ints.begin(), ints.end(), 2);
+    std::cout << "Distance between twos is " << std::distance(firstTwo, lastTwo) << '\n';
 }
-
-
-
-
 
 int main()
 {
