@@ -19,7 +19,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <iostream>
+#include <iterator>
 #include <numeric>
 #include <vector>
 
@@ -27,53 +29,52 @@
 using Ints    = std::vector<int>;
 using Doubles = std::vector<double>;
 
-
-template< typename T >
-void printVector( std::vector<T> const& numbers )
+template <typename T>
+void printVector(std::vector<T> const& numbers)
 {
-   // TODO
+    std::copy(numbers.cbegin(), numbers.cend(), std::ostream_iterator<T>(std::cout, " "));
 }
 
-
-int computeProduct( Ints const& ints )
+int computeProduct(Ints const& ints)
 {
-   // TODO
-   return 0;
+    const auto product = std::accumulate(ints.cbegin(), ints.cend(), 1, std::multiplies<int>());
+    return product;
 }
 
-
-Ints extractInts( Ints const& ints )
+Ints extractInts(Ints const& ints)
 {
-   // TODO
-   return Ints{};
+    Ints intsSmallerThan5 {};
+    std::copy_if(ints.cbegin(), ints.cend(), std::back_inserter(intsSmallerThan5),
+        [](const auto el) { return el <= 5; });
+
+    return intsSmallerThan5;
 }
 
-
-double computeLength( Ints const& ints )
+double computeLength(Ints const& ints)
 {
-   // TODO
-   return 0.0;
+    const auto vectorLength = std::sqrt(std::inner_product(ints.cbegin(), ints.cend(), ints.cbegin(), 0));
+    return vectorLength;
 }
 
-
-Doubles computeRatios( Ints const& ints )
+Doubles computeRatios(Ints const& ints)
 {
-   // TODO
-   return Doubles{};
+    Doubles vecCopy;
+    std::transform(ints.cbegin(), ints.cend() - 1, ints.cbegin() + 1, std::back_inserter(vecCopy),
+        [](const double lhs, const double rhs) { return rhs / lhs; });
+
+    return vecCopy;
 }
 
-
-Ints moveRange( Ints const& ints )
+Ints moveRange(Ints const& ints)
 {
-   // TODO
-   return Ints{};
+    auto intsCopy(ints);
+    std::rotate(intsCopy.begin(), intsCopy.begin() + 3, intsCopy.end());
+    return intsCopy;
 }
-
 
 int main()
 {
    Ints ints{ 1, 5, 2, 8, 7, 10, 4 };
-
    // Compute the product of all elements in v
    {
       std::cout << " Product of all elements: expected = 22400, actual = ";
