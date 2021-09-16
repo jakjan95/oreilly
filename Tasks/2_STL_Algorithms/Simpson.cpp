@@ -31,7 +31,6 @@
 #include <string>
 #include <vector>
 
-
 struct Person
 {
    std::string firstname;
@@ -46,70 +45,77 @@ std::ostream& operator<<( std::ostream& os, Person const& person )
              << std::setw(3)  << std::right << person.age;
 }
 
-
-
-
-template< typename Table >
-void print( const Table& table )
+template <typename Table>
+void print(const Table& table)
 {
-   // TODO: Print all characters to the screen
+    for (const auto& el : table) {
+        std::cout << el << '\n';
+    }
 }
 
-template< typename Table >
-void random_order( Table& table )
+template <typename Table>
+void random_order(Table& table)
 {
-   // TODO: Randomize their order ('r')
+    std::mt19937 gen(std::random_device {}());
+    std::shuffle(table.begin(), table.end(), gen);
 }
 
-template< typename Table >
-void find_youngest( const Table& table )
+template <typename Table>
+void find_youngest(const Table& table)
 {
-   // TODO: Find the youngest character ('y')
-   //const auto pos = ...;
-   //std::cout << "Youngest person = " << pos->firstname << " " << pos->lastname << "\n";
+    const auto pos = std::min_element(table.cbegin(), table.cend(),
+        [](const Person& lhs, const Person& rhs) { return lhs.age < rhs.age; });
+
+    std::cout << "Youngest person = " << pos->firstname << " " << pos->lastname << "\n";
 }
 
-template< typename Table >
-void order_by_firstname( Table& table )
+template <typename Table>
+void order_by_firstname(Table& table)
 {
-   // TODO: Order them by first name ('f')
+    std::sort(table.begin(), table.end(),
+        [](const Person& lhs, const Person& rhs) {  
+        if(lhs.firstname == rhs.firstname){
+           return lhs.lastname <= rhs.lastname;
+        }
+        return lhs.firstname <= rhs.firstname; });
 }
 
-template< typename Table >
-void order_by_lastname( Table& table )
+template <typename Table>
+void order_by_lastname(Table& table)
 {
-   // TODO: Order them by last name while preserving the order between equal elements ('l')
+    std::sort(table.begin(), table.end(),
+        [](const Person& lhs, const Person& rhs) { return lhs.lastname < rhs.lastname; });
 }
 
-template< typename Table >
-void order_by_age( Table& table )
+template <typename Table>
+void order_by_age(Table& table)
 {
-   // TODO: Order them by age while preserving the order between equal elements ('a')
+    std::sort(table.begin(), table.end(),
+        [](const Person& lhs, const Person& rhs) { return lhs.age < rhs.age; });
 }
 
-template< typename Table >
-void simpsons_first( Table& table )
+template <typename Table>
+void simpsons_first(Table& table)
 {
-   // TODO: Put all Simpsons first without affecting the general order of characters ('s')
+    std::stable_partition(table.begin(), table.end(),
+        [](const Person& el) { return el.lastname == "Simpson"; });
 }
 
-template< typename Table >
-void compute_total_age( const Table& table )
+template <typename Table>
+void compute_total_age(const Table& table)
 {
-   // TODO: Compute the total age of all characters ('t')
-   const int age = 0;
-   std::cout << "Total age = " << age << "\n";
+    const int age = std::accumulate(table.cbegin(), table.cend(), 0,
+        [](auto sum, const Person& rhs) { return sum + rhs.age; });
+    std::cout << "Total age = " << age << "\n";
 }
 
-template< typename Table >
-void third_oldest( Table& table )
+template <typename Table>
+void third_oldest(Table& table)
 {
-   // TODO: Determine the third oldest character as quickly as possible ('3')
-   //       Note that you are allowed to change the order of characters.
+    std::nth_element(table.begin(), table.begin() + 2, table.end(),
+        [](const Person& lhs, const Person& rhs) { return lhs.age > rhs.age; });
+    std::cout << "The third oldest is " << table[2] << '\n';
 }
-
-
-
 
 int main()
 {
