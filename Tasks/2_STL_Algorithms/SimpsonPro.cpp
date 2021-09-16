@@ -28,6 +28,7 @@
 #include <iostream>
 #include <iterator>
 #include <iomanip>
+#include <limits>
 #include <numeric>
 #include <random>
 #include <string>
@@ -60,95 +61,98 @@ void toupper( std::string& s )
    }
 }
 
-
-
-
-template< typename Table >
-void print( const Table& table )
+template <typename Table>
+void print(const Table& table)
 {
-   // TODO: Print all characters to the screen
+    std::for_each(table.cbegin(), table.cend(),
+        [](const auto el) { std::cout << el << '\n'; });
 }
 
-template< typename Table >
-void random_order( Table& table )
+template <typename Table>
+void random_order(Table& table)
 {
-   // TODO: Randomize their order ('r')
+    std::mt19937 gen(std::random_device {}());
+    std::shuffle(table.begin(), table.end(), gen);
 }
 
-template< typename Table >
-void find_youngest( const Table& table )
+template <typename Table>
+void find_youngest(const Table& table)
 {
-   // TODO: Find the youngest character ('y')
-
-   //const auto pos = ...;
-
-   //std::cout << "Youngest person = " << pos->firstname << " " << pos->lastname << "\n";
+    const auto pos = std::min_element(table.cbegin(), table.end(),
+        [](const Person& lhs, const Person& rhs) { return lhs.age < rhs.age; });
+    std::cout << "Youngest person = " << pos->firstname << " " << pos->lastname << "\n";
 }
 
-template< typename Table >
-void order_by_lastname( Table& table )
+template <typename Table>
+void order_by_lastname(Table& table)
 {
-   // TODO: Order them by last name while preserving the order between equal elements ('l')
+    std::sort(table.begin(), table.end(),
+        [](const Person& lhs, const Person& rhs) { return lhs.lastname < rhs.lastname; });
 }
 
-template< typename Table >
-void highlight_lastname( Table& table )
+template <typename Table>
+void highlight_lastname(Table& table)
 {
-   std::string lastname{};
+    std::string lastname {};
 
-   std::cout << "Enter last name: ";
-   std::cin >> lastname;
+    std::cout << "Enter last name: ";
+    std::cin >> lastname;
 
-   // TODO: Highlight/capitalize the last name of all persons with the given name ('h')
-   //       Note that you can use the given 'toupper()' function to capitalize a string.
+    std::for_each(table.begin(), table.end(),
+        [&lastname](auto& el) {
+            if (el.lastname == lastname) {
+                toupper(el.lastname);
+            }
+        });
 }
 
-template< typename Table >
-void children_first( Table& table )
+template <typename Table>
+void children_first(Table& table)
 {
-   // TODO: Put all children first ('c')
-   //       Note that you can use the given 'isChildren()' function.
+    std::stable_partition(table.begin(), table.end(), isChildren);
 }
 
-template< typename Table >
-void compute_total_lastname_length( const Table& table )
+template <typename Table>
+void compute_total_lastname_length(const Table& table)
 {
-   // TODO: Compute the total length of all last names ('t')
+    auto totalLastNameLength = std::accumulate(table.cbegin(), table.cend(), 0,
+        [](auto total, const Person& per) {
+            return total + per.lastname.length();
+        });
+    std::cout << "The total length of all lastnames is equal to " << totalLastNameLength << '\n';
 }
 
-template< typename Table >
-void same_age( const Table& table )
+template <typename Table>
+void same_age(const Table& table)
 {
-   // TODO: Check if two adjacent characters have the same age ('s')
+    const auto pos = std::adjacent_find(table.cbegin(), table.cend(),
+        [](const Person& lhs, const Person& rhs) { return lhs.age == rhs.age; });
 
-   // const auto pos = ...;
-
-   //if( pos != table.end() ) {
-   //   std::cout << pos->firstname << " and " << (pos+1)->firstname << " have the same age!\n";
-   //}
-   //else {
-   //   std::cout << "No consecutive persons with the same age found!\n";
-   //}
+    if (pos != table.end()) {
+        std::cout << pos->firstname << " and " << (pos + 1)->firstname << " have the same age!\n";
+    } else {
+        std::cout << "No consecutive persons with the same age found!\n";
+    }
 }
 
-template< typename Table >
-void maximum_age_difference( const Table& table )
+template <typename Table>
+void maximum_age_difference(const Table& table)
 {
-   // TODO: Compute the maximum age difference between two adjacent characters ('d')
-
-   // const int diff = ...;
-
-   //std::cout << " Maximum age different = " << diff << "\n";
+    auto max_diff = std::numeric_limits<int>::min();
+    for (auto left = table.begin(), right = table.begin() + 1; right != table.end(); ++left, ++right) {
+        max_diff = std::max(max_diff, std::abs((*left).age - (*right).age));
+    }
+    std::cout << " Maximum age different = " << max_diff << "\n";
 }
 
-template< typename Table >
-void median_age( Table& table )
+template <typename Table>
+void median_age(Table& table)
 {
-   // TODO: Determine the median age of all characters ('m')
+    std::nth_element(table.begin(), table.begin() + table.size() / 2, table.end(),
+        [](const Person& lhs, const Person& rhs) { return lhs.age < rhs.age; });
+    const auto medina = table[table.size() / 2];
+    std::cout << " Median age = " << medina << "\n";
 }
-
-
-
 
 int main()
 {
