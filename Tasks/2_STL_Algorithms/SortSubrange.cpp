@@ -19,13 +19,15 @@
 #include <iostream>
 #include <vector>
 
-
 // TODO: Implement the 'sort_subrange()' algorithm
-
+template <typename InputIt, typename Compare = std::less<>>
+void sort_subrange(InputIt first, InputIt last, InputIt firstToSort, InputIt secondToSort, Compare cmp = Compare {})
+{
+    std::sort(firstToSort, secondToSort, cmp);
+}
 
 int main()
 {
-   /*
    std::vector<int> v{ 3, 2, 11, 5, 4, 6, 12, 7, 8, 9, 1, 10 };
 
    // Sort the subrange [begin+2,begin+6) within the range [begin,end) in ascending order
@@ -43,7 +45,7 @@ int main()
    for( int i : v )
       std::cout << ' ' << i;
    std::cout << " )\n\n";
-   */
+   
 
-   return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
