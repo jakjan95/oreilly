@@ -20,16 +20,19 @@
 #include <cctype>
 #include <iterator>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
-
-template< typename OutputIterator >
-void extract_strings( std::string s, OutputIterator out )
+template <typename OutputIterator>
+void extract_strings(std::string s, OutputIterator out)
 {
-   // TODO
+    std::stringstream ss { s };
+    for (std::string word; ss >> word;) {
+        *out = word;
+        out++;
+    }
 }
-
 
 int main()
 {
