@@ -28,13 +28,36 @@
 #include <numeric>
 #include <vector>
 
+template <typename InputIt>
+int longest_streak(InputIt first, InputIt last)
+{
+    if (first == last) {
+        return 0;
+    } else if (first + 1 == last) {
+        return 1;
+    }
 
-// TODO: Implement the 'longest_streak()' algorithm
+    int longestStreak = 0;
+    int counterStreak = 0;
+    for (auto firstIt = first, secondIt = first + 1; secondIt != last; firstIt++, secondIt++) {
+        counterStreak++;
 
+        if (secondIt + 1 == last && *firstIt == *secondIt) {
+            counterStreak++;
+        }
+
+        if (*firstIt != *secondIt || secondIt + 1 == last) {
+            if (counterStreak >= longestStreak) {
+                longestStreak = counterStreak;
+            }
+            counterStreak = 0;
+        }
+    }
+    return longestStreak;
+}
 
 int main()
-{
-   /*
+{   
    std::vector<int> v1{};
    std::vector<int> v2{ 0 };
    std::vector<int> v3{ 0, 0 };
@@ -65,7 +88,6 @@ int main()
    std::cout << " The longest streak in v7 is " << streak7 << " (expected: 3)\n";
    std::cout << " The longest streak in v8 is " << streak8 << " (expected: 4)\n";
    std::cout << " The longest streak in v9 is " << streak9 << " (expected: 8)\n";
-   */
 
    return EXIT_SUCCESS;
 }
