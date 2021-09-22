@@ -18,11 +18,15 @@
 
 
 // TODO: Write a 'constexpr' function template 'size()' that returns the size of a given array.
-
+template <typename T, size_t N>
+constexpr size_t size(T (&arr)[N])
+{
+    return N;
+}
 
 int main()
 {
-   /*
+   
    int         array1[4];
    double      array2[6];
    std::string array3[9];
@@ -39,7 +43,7 @@ int main()
    {
       std::cout << "size() works!\n";
    }
-   */
+   
 
    return EXIT_SUCCESS;
 }
