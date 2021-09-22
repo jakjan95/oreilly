@@ -24,16 +24,34 @@
 // Step 1: Write a generic 'compare()' function that returns a negative number if the left-hand
 //         side argument is smaller, 0 if both arguments are equal, and a positive number if the
 //         left-hand side argument is larger.
-// TODO
-
+template <typename T>
+int compare(const T& lhs, const T& rhs)
+{
+    if (lhs < rhs) {
+        return -1;
+    } else if (lhs > rhs) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
 // Step 2: Specialize the 'compare()' function for pointers to char.
-// TODO
-
+template <>
+int compare(const char* const& lhs, const char* const& rhs)
+{
+    if (*lhs < *rhs) {
+        return -1;
+    } else if (*lhs > *rhs) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
 int main()
 {
-   /*
+   
    {
       const int i1 = 1;
       const int i2 = 2;
@@ -69,7 +87,7 @@ int main()
          std::cout << "compare( const char*, const char* ) works!\n";
       }
    }
-   */
+   
 
    return EXIT_SUCCESS;
 }
