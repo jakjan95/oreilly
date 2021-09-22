@@ -33,23 +33,44 @@
 //         an initial value for the reduction operation, and a binary operation that performs the
 //         elementwise reduction (see https://en.cppreference.com/w/cpp/algorithm/accumulate,
 //         overload (2)).
-// TODO
+template <typename IterType, typename T, typename Operation>
+T accumulate(IterType first, IterType last, T init, Operation op)
+{
+    for (; first != last; ++first) {
+        init = op(std::move(init), *first);
+    }
+    return init;
+}
 
 // Step 2: Implement an overload of the 'accumulate()' algorithm that uses 'std::plus' as the
 //         default binary operation.
-// TODO
+template <typename IterType, typename T>
+T accumulate(IterType first, IterType last, T init)
+{
+    return accumulate(first, last, init, std::plus<> {});
+}
 
 // Step 3: Implement an overload of the 'accumulate()' algorithm that uses the default of the
 //         underlying data type as initial value and 'std::plus' as the default binary operation.
-// TODO
+template <typename IterType>
+auto accumulate(IterType first, IterType last)
+{
+    using typeForInitialValue = decltype(*first + *last);
+    return accumulate(first, last, typeForInitialValue {});
+}
 
 // Step 4: Test your implementation with a custom binary operation (e.g. 'Times').
-// TODO
-
+struct Times {
+    template <typename T1, typename T2>
+    auto operator()(T1&& lhs, T2&& rhs)
+    {
+        return std::forward<T1>(lhs) * std::forward<T2>(rhs);
+    }
+};
 
 int main()
 {
-   /*
+   
    // Sum of values in a vector of integral values
    {
       const std::vector<int> v{ 1, 3, 5, 7 };
@@ -63,7 +84,7 @@ int main()
       const auto sum = accumulate( begin(l), end(l), 1.0, Times{} );
       std::cout << "\n sum = " << sum << "\n\n";
    }
-   */
+   
 
    return EXIT_SUCCESS;
 }
