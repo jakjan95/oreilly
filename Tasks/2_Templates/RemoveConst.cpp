@@ -19,11 +19,22 @@
 
 
 // TODO: Implement the 'remove_const' type trait to remove const qualifiers from the given type.
+template <typename T>
+struct remove_const {
+    using type = T;
+};
 
+template <typename T>
+struct remove_const<const T> {
+    using type = T;
+};
+
+template <typename T>
+using remove_const_t = typename remove_const<T>::type;
 
 int main()
 {
-   /*
+   
    using Type1  = int;
    using Type2  = int const;
    using Type3  = int volatile;
@@ -51,7 +62,7 @@ int main()
    static_assert( std::is_same< remove_const_t<Type10>, int const&          >::value, "Invalid type detected" );
    static_assert( std::is_same< remove_const_t<Type11>, int volatile&       >::value, "Invalid type detected" );
    static_assert( std::is_same< remove_const_t<Type12>, int const volatile& >::value, "Invalid type detected" );
-   */
+   
 
    return EXIT_SUCCESS;
 }
