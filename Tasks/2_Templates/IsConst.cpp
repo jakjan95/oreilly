@@ -19,13 +19,22 @@
 #include <iostream>
 #include <type_traits>
 
-
 // TODO: Implement the 'is_const' type trait to determine whether a given type is a const qualified type.
 
+template <typename T>
+struct is_const : public std::false_type {
+};
+
+template <typename T>
+struct is_const<const T> : public std::true_type {
+};
+
+template <typename T>
+constexpr bool is_const_v = is_const<T>::value;
 
 int main()
 {
-   /*
+   
    using Type1 = int;
    using Type2 = int const;
    using Type3 = int*;
@@ -35,14 +44,16 @@ int main()
    constexpr bool result2 = is_const<Type2>::value;  // Should result in 'true'
    constexpr bool result3 = is_const<Type3>::value;  // Should result in 'false'
    constexpr bool result4 = is_const<Type4>::value;  // Should result in 'true'
+   constexpr bool result5 = is_const_v<Type4>;  // Should result in 'true'
 
    std::cout << "\n"
              << " result1 = " << result1 << "\n"
              << " result2 = " << result2 << "\n"
              << " result3 = " << result3 << "\n"
              << " result4 = " << result4 << "\n"
+             << " result5 = " << result5 << "\n"
              << "\n";
-   */
+   
 
    return EXIT_SUCCESS;
 }
