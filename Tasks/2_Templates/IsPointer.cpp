@@ -21,11 +21,31 @@
 
 
 // TODO: Implement the 'is_pointer' type trait to determine whether a given type is a pointer type.
+template <typename T>
+struct is_pointer : public std::false_type {
+};
+template <typename T>
+struct is_pointer<T*> : public std::true_type {
+};
 
+template <typename T>
+struct is_pointer<T* const> : public std::true_type {
+};
+
+template <typename T>
+struct is_pointer<T* volatile> : public std::true_type {
+};
+
+template <typename T>
+struct is_pointer<T* const volatile> : public std::true_type {
+};
+
+template <typename T>
+constexpr bool is_pointer_v = is_pointer<T>::value;
 
 int main()
 {
-   /*
+   
    using Type1 = int;
    using Type2 = int const;
    using Type3 = int volatile;
@@ -43,7 +63,7 @@ int main()
    static_assert(  is_pointer_v<Type6> );
    static_assert(  is_pointer_v<Type7> );
    static_assert(  is_pointer_v<Type8> );
-   */
+   
 
    return EXIT_SUCCESS;
 }
