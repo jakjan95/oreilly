@@ -27,7 +27,12 @@ inline auto max( T1 const& a, T2 const& b )
 
 // 'max()' function template for an arbitrary number of elements
 // TODO
-
+template <typename T1, typename... Args>
+inline auto max(T1 const& a, Args... values)
+//   -> std::common_type_t<T1,T2>    // Trailing return type necessary for C++11
+{
+    return max(a, max(values...));
+}
 
 int main()
 {
@@ -37,8 +42,8 @@ int main()
                 " max( 1.2, 2.3 )      = " << max( 1.2, 2.3 ) << "\n"
                 " max( 1.2, -4 )       = " << max( 1.2, -4 ) << "\n"
                 " max( 1, 2.8 )        = " << max( 1, 2.8 ) << "\n"
-                //" max( 1, 5, 4 )       = " << max( 1, 5, 4 ) << "\n"
-                //" max( 1, -1.3F, 2.3 ) = " << max( 1, -1.3F, 2.3 ) << "\n"
+                " max( 1, 5, 4 )       = " << max( 1, 5, 4 ) << "\n"
+                " max( 1, -1.3F, 2.3 ) = " << max( 1, -1.3F, 2.3 ) << "\n"
                 "\n";
 
    return EXIT_SUCCESS;
