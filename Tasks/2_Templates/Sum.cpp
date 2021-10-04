@@ -15,38 +15,13 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <utility>
 
-
-int sum( int i1, int i2 )
+template <typename... Args>
+auto sum(Args... value)
 {
-   return i1 + i2;
+    return (0 + ... + value);
 }
-
-int sum( int i1, int i2, int i3 )
-{
-   return i1 + i2 + i3;
-}
-
-int sum( int i1, int i2, int i3, int i4 )
-{
-   return i1 + i2 + i3 + i4;
-}
-
-double sum( double i1, double i2 )
-{
-   return i1 + i2;
-}
-
-double sum( double i1, double i2, double i3 )
-{
-   return i1 + i2 + i3;
-}
-
-double sum( double i1, double i2, double i3, double i4 )
-{
-   return i1 + i2 + i3 + i4;
-}
-
 
 int main()
 {
