@@ -23,16 +23,41 @@
 // TODO: Implement the 'addsub()' function, which performs an alternating addition/subtraction
 //       of the given arguments.
 
+template <typename T>
+auto addsub(T lhs)
+{
+    return lhs;
+}
 
+template <typename T>
+auto subadd(T lhs)
+{
+    return -lhs;
+}
+
+template <typename T, typename... Args>
+auto addsub(T lhs, Args... values);
+
+template <typename T, typename... Args>
+auto subadd(T lhs, Args... values)
+{
+    return (-lhs + addsub(values...));
+}
+
+template <typename T, typename... Args>
+auto addsub(T lhs, Args... values)
+{
+    return (lhs + subadd(values...));
+}
 
 int main()
 {
-   /*
+   
    std::cout << "\n"
              << " addsub( 10, 9, 8, 7, 6    ) = " << addsub( 10, 9, 8, 7, 6    ) << " (expected: 8)\n"
              << " addsub( 10, 9, 8, 7, 6, 5 ) = " << addsub( 10, 9, 8, 7, 6, 5 ) << " (expected: 3)\n"
              << "\n";
-   */
+   
 
    return EXIT_SUCCESS;
 }
