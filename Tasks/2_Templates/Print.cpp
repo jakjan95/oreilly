@@ -26,14 +26,30 @@ std::ostream& print( std::ostream& os, const T& value )
    return os << value;
 }
 
+template <typename T, typename... Arg>
+std::ostream& print(std::ostream& os, const T& value, const Arg&... values)
+{
+    print(os, value);
+    print(os, values...);
+    return os;
+}
+
+// C++ 17 - fold expression
+// template <typename T, typename... Arg>
+// std::ostream& print(std::ostream& os, const T& value, const Arg&... values)
+// {
+//     os << value;
+//     return (os << ... << values);
+// }
+
 
 int main()
 {
-   /*
+   
    print( std::cout, "Hallo\n" );
    print( std::cout, "Two ", "words\n" );
    print( std::cout, "Numbers: ", 1, ' ', 1.2, ' ', '\n' );
-   */
+   
 
    return EXIT_SUCCESS;
 }
