@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -144,9 +145,11 @@ unique_ptr<T>& unique_ptr<T>::operator=( unique_ptr<U>&& u ) noexcept
 
 
 // TODO: Implement a 'make_unique()' function for the 'unique_ptr' base template
-
-
-
+template <typename T, typename... Args, std::enable_if_t<!std::is_array<T>::value>* = nullptr>
+unique_ptr<T> make_unique(Args&&... args)
+{
+    return unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
 
 template< typename T >
 class unique_ptr<T[]>
@@ -209,9 +212,11 @@ unique_ptr<T[]>& unique_ptr<T[]>::operator=( unique_ptr&& u ) noexcept
 
 
 // TODO: Implement a 'make_unique()' function for the 'unique_ptr' specialization
-
-
-
+template <typename T, std::enable_if_t<std::is_array<T>::value>* = nullptr>
+unique_ptr<T> make_unique(size_t size)
+{
+    return unique_ptr<T>(new std::remove_extent_t<T>[size]);
+}
 
 //---- <Main.cpp> ---------------------------------------------------------------------------------
 
@@ -219,10 +224,10 @@ int main()
 {
    // unique_ptr for a single Widget
    {
-      auto a = unique_ptr<Widget>( new Widget(2) );
+      auto a = make_unique<Widget>(2);
       std::cout << " a has been created (a=" << (*a).get() << ")\n\n";
 
-      auto b = unique_ptr<Widget>( new Widget(3) );
+      auto b = make_unique<Widget>(3);
       std::cout << " b has been created (b=" << b->get() << ")\n\n";
 
       //a = b;  // Compilation error!!!
@@ -236,12 +241,12 @@ int main()
 
    // unique_ptr for an array of Widgets
    {
-      auto a = unique_ptr<Widget[]>( new Widget[2] );
+      auto a = make_unique<Widget[]>(2);
       a[0].set( 1 );
       a[1].set( 2 );
       std::cout << " a has been created (a=[" << a[0].get() << "," << a[1].get() << "])\n\n";
 
-      auto b = unique_ptr<Widget[]>( new Widget[3] );
+      auto b = make_unique<Widget[]>(3);
       b[0].set( 3 );
       b[1].set( 4 );
       b[2].set( 5 );
