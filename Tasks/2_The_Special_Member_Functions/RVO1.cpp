@@ -28,10 +28,14 @@ struct S
    ~S() { std::puts( "~S()" ); }
 };
 
+S createS() { return S {}; }
 
 int main()
 {
-   S s{};
+   // S s{};
+   // S s2{s};
+   S s3{createS()}; // RVO
+
 
    return EXIT_SUCCESS;
 }
