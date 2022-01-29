@@ -20,6 +20,7 @@
 *
 **************************************************************************************************/
 
+#include <cassert>
 #include <cstdlib>
 #include <iomanip>  // For the C++14 'std::quoted'
 #include <iostream>
@@ -75,7 +76,9 @@ class ResourceOwner
       : m_id      { id }
       , m_name    { name }
       , m_resource{ resource }
-   {}
+   {
+      assert( resource );
+   }
 
    ~ResourceOwner() = default;
 
@@ -84,24 +87,38 @@ class ResourceOwner
       : m_id  { other.m_id }
       , m_name{ other.m_name }
    {
-      if( other.m_resource != nullptr ) {
-         m_resource.reset( new Resource( *other.m_resource ) );
-      }
+      assert( other.m_resource );
+      m_resource.reset( new Resource( *other.m_resource ) );
    }
 
    // Move constructor
-   ResourceOwner( ResourceOwner&& other ) = default;
+   ResourceOwner(ResourceOwner&& other)
+       : m_id { other.m_id }
+       , m_name { std::move(other.m_name) }
+   {
+       assert(other.m_resource);
+       m_resource.reset(new Resource(*other.m_resource));
+   }
 
    // Copy assignment operator
-   ResourceOwner& operator=( ResourceOwner const& other )
+   ResourceOwner& operator=(ResourceOwner const& other)
    {
-      ResourceOwner tmp( other );
-      swap( tmp );
-      return *this;
+       assert(other.m_resource);
+       m_id = other.m_id;
+       m_name = other.m_name;
+       *m_resource = *other.m_resource;
+       return *this;
    }
 
    // Move assignment operator
-   ResourceOwner& operator=( ResourceOwner&& other ) = default;
+   ResourceOwner& operator=(ResourceOwner&& other) noexcept
+   {
+       assert(other.m_resource);
+       m_id = std::move(other.m_id);
+       m_name = std::move(other.m_name);
+       *m_resource = std::move(*other.m_resource);
+       return *this;
+   }
 
    void swap( ResourceOwner& other ) noexcept
    {
