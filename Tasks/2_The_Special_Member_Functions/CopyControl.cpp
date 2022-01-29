@@ -23,8 +23,10 @@
 #include <memory>
 #include <numeric>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 
 //---- <Utility.h> --------------------------------------------------------------------------------
@@ -92,19 +94,31 @@ class B
    explicit B( unsigned int ui ) : ui_{ ui } {}
 
    // Copy constructor
-   //B( const B& ) = default;
+   B( const B& ) = default;
 
    // Move constructor
-   //B( B&& ) = default;
+   B( B&& ) = default;
 
    // Destructor
-   //~B() = default;
+   ~B() = default;
 
    // Copy assignment operator
-   //B& operator=( const B& ) = default;
+   B& operator=(const B& b)
+   {
+       f_ = b.f_;
+       v_ = b.v_;
+
+       return *this;
+   }
 
    // Move assignment operator
-   //B& operator=( B&& ) = default;
+   B& operator=(B&& b)
+   {
+       f_ = b.f_;
+       v_ = std::move(b.v_);
+
+       return *this;
+   }
 
  private:
    float f_{ 3.14F };
@@ -126,19 +140,27 @@ class C
    explicit C( unsigned short& us ) : us_{ us } {}
 
    // Copy constructor
-   //C( const C& ) = default;
+   C( const C& ) = default;
 
    // Move constructor
-   //C( C&& ) = default;
+   C( C&& ) = default;
 
    // Destructor
-   //~C() = default;
+   ~C() = default;
 
    // Copy assignment operator
-   //C& operator=( const C& ) = default;
+   C& operator=( const C& c){
+      ld_ = c.ld_;
+      map_ = c.map_;
+      return *this;
+   }
 
    // Move assignment operator
-   //C& operator=( C&& ) = default;
+   C& operator=( C&& c){
+      ld_ = c.ld_;
+      map_ = std::move(c.map_);
+      return *this;
+   }
 
  private:
    long double ld_{ 3.14L };
@@ -165,20 +187,43 @@ class D
    }
 
    // Copy constructor
-   //D( const D& ) = default;
+   D(const D& d)
+       : n_ { d.n_ }
+       , v_ { new double[n_] }
+   {
+       std::copy_n(d.v_, d.n_, v_);
+   }
 
    // Move constructor
-   //D( D&& ) = default;
+   D(D&& d)
+       : n_ { std::exchange(d.n_, 0) }
+       , v_ { std::exchange(d.v_, nullptr) }
+   {
+   }
 
    // Destructor
-   //~D() = default;
+   ~D()
+   {
+       delete[] v_;
+   }
 
    // Copy assignment operator
-   //D& operator=( const D& ) = default;
+   D& operator=(const D& d)
+   {
+       n_ = d.n_;
+       delete[] v_;
+       v_ = new double[d.n_];
+       std::copy_n(d.v_, d.n_, v_);
+       return *this;
+   }
 
    // Move assignment operator
-   //D& operator=( D&& ) = default;
-
+   D& operator=( D&& d){
+      delete[] v_;
+      n_ = std::exchange(d.n_, 0);
+      v_ = std::exchange(d.v_, nullptr);
+      return *this;
+   }
  private:
    std::size_t n_{ 12UL };
    double* v_;
@@ -235,19 +280,28 @@ class F
    F() = default;
 
    // Copy constructor
-   //F( const F& ) = default;
+   F(const F& f)
+       : a_ { f.a_ }
+       , u_ { f.u_ ? std::make_unique<std::string>(*f.u_) : nullptr }
+   {
+   }
 
    // Move constructor
-   //F( F&& ) = default;
+   F( F&& ) = default;
 
    // Destructor
-   //~F() = default;
+   ~F() = default;
 
    // Copy assignment operator
-   //F& operator=( const F& ) = default;
+   F& operator=(const F& f)
+   {
+       a_ = f.a_;
+       u_.reset(f.u_ ? new std::string { *f.u_ } : nullptr);
+       return *this;
+   }
 
    // Move assignment operator
-   //F& operator=( F&& ) = default;
+   F& operator=( F&& ) = default;
 
  private:
    std::size_t a_{ 42UL };
@@ -265,7 +319,6 @@ class F
 int main()
 {
    // class A
-   /*
    {
       A a1{};
 
@@ -279,12 +332,10 @@ int main()
                 << a2 << "\n"
                 << "\n";
    }
-   */
 
    // class B
-   /*
    {
-      B b1{};
+      B b1{42U};
 
       B b2{ b1 };             // Copy constructor
       B b3{ std::move(b1) };  // Move constructor
@@ -296,10 +347,8 @@ int main()
                 << b2 << "\n"
                 << "\n";
    }
-   */
 
    // class C
-   /*
    {
       unsigned short us{ 42 };
       C c1{ us };
@@ -314,12 +363,11 @@ int main()
                 << c2 << "\n"
                 << "\n";
    }
-   */
 
    // class D
-   /*
+   
    {
-      D d1{ 2UL, 3UL };
+      D d1{ 12UL };
 
       D d2{ d1 };             // Copy constructor
       D d3{ std::move(d1) };  // Move constructor
@@ -331,10 +379,8 @@ int main()
                 << d2 << "\n"
                 << "\n";
    }
-   */
 
    // class E
-   /*
    {
       E e1{};
 
@@ -348,10 +394,8 @@ int main()
                 << e2 << "\n"
                 << "\n";
    }
-   */
 
    // class F
-   /*
    {
       F f1{};
 
@@ -365,7 +409,5 @@ int main()
                 << f2 << "\n"
                 << "\n";
    }
-   */
-
    return EXIT_SUCCESS;
 }
