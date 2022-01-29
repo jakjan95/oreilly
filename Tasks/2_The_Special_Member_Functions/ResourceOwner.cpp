@@ -99,6 +99,25 @@ class ResourceOwner
    }
 
    // Step 2: Implement the move operations of class 'ResourceOwner'.
+   ResourceOwner(ResourceOwner&& other)
+       : m_id { std::move(other.m_id) }
+       , m_name { std::move(other.m_name) }
+       , m_resource { std::exchange(other.m_resource, nullptr) }
+   {
+   }
+
+   ResourceOwner& operator=(ResourceOwner&& other)
+   {
+       if (this == &other) {
+           return *this;
+       }
+
+       m_id = std::move(other.m_id);
+       m_name = std::move(other.m_name);
+       delete m_resource;
+       m_resource = std::exchange(other.m_resource, nullptr);
+       return *this;
+   }
 
    int                id()       const { return m_id;       }
    const std::string& name()     const { return m_name;     }
@@ -128,15 +147,15 @@ int main()
    std::cout << " owner2: id=" << owner2.id() << ", name=" << std::quoted(owner2.name())
              << " resource=" << owner2.resource()->get() << ", &resource = " << owner2.resource() << "\n\n";
 
-   //owner1.resource()->set( 3 );
-   //ResourceOwner owner3( std::move( owner1 ) );
-   //std::cout << " owner3: id=" << owner3.id() << ", name=" << std::quoted(owner3.name())
-   //          << " resource=" << owner3.resource()->get() << ", &resource = " << owner3.resource() << "\n\n";
+   owner1.resource()->set( 3 );
+   ResourceOwner owner3( std::move( owner1 ) );
+   std::cout << " owner3: id=" << owner3.id() << ", name=" << std::quoted(owner3.name())
+            << " resource=" << owner3.resource()->get() << ", &resource = " << owner3.resource() << "\n\n";
 
-   //owner2.resource()->set( 4 );
-   //owner1 = std::move( owner2 );
-   //std::cout << " owner1: id=" << owner1.id() << ", name=" << std::quoted(owner1.name())
-   //          << " resource=" << owner1.resource()->get() << ", &resource = " << owner1.resource() << "\n\n";
+   owner2.resource()->set( 4 );
+   owner1 = std::move( owner2 );
+   std::cout << " owner1: id=" << owner1.id() << ", name=" << std::quoted(owner1.name())
+            << " resource=" << owner1.resource()->get() << ", &resource = " << owner1.resource() << "\n\n";
 
    return EXIT_SUCCESS;
 }
