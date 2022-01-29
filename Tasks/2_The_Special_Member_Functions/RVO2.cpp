@@ -33,7 +33,7 @@ struct S
 
 
 //*************************************************************************************************
-// RVO Example 1: Return of unnamed stack variable
+// RVO Example 1: Return of unnamed stack variable -> Apply RVO
 /*
 S f()  // Also with 'const S' return type
 {
@@ -54,20 +54,20 @@ int main()
 S f()
 {
    S s{ "1" };
-   s = S{ "2" };
+   s = S{ "2" }; //Apply here
    return s;
 }
 
 int main()
 {
-   S s{ f() };
+   S s{ f() }; //But here is moved
 }
 */
 //*************************************************************************************************
 
 
 //*************************************************************************************************
-// RVO Example 3: Return stack variable by means of move
+// RVO Example 3: Return stack variable by means of move -> Not, move is performed
 /*
 S f()
 {
@@ -84,7 +84,7 @@ int main()
 
 
 //*************************************************************************************************
-// RVO Example 4: Return of function argument
+// RVO Example 4: Return of function argument  -> Not, move is performed
 /*
 S f( S s )
 {
@@ -101,7 +101,7 @@ int main()
 
 
 //*************************************************************************************************
-// RVO Example 5: Conditional return of function argument
+// RVO Example 5: Conditional return of function argument -> Not
 /*
 S f( bool b, S s )
 {
@@ -120,7 +120,7 @@ int main()
 
 
 //*************************************************************************************************
-// RVO Example 6: Conditional return of lvalues
+// RVO Example 6: Conditional return of lvalues -> Move
 /*
 S f( bool b )
 {
@@ -142,7 +142,7 @@ int main()
 
 
 //*************************************************************************************************
-// RVO Example 7: Conditional return of rvalues (1)
+// RVO Example 7: Conditional return of rvalues (1) -> RVO perofrmed
 /*
 S f( bool b )
 {
@@ -161,7 +161,7 @@ int main()
 
 
 //*************************************************************************************************
-// RVO Example 8: Conditional return of rvalues (2)
+// RVO Example 8: Conditional return of rvalues (2) -> RVO perofrmed
 /*
 S getS() { return S{ "First option" }; }
 
@@ -181,7 +181,7 @@ int main()
 
 
 //*************************************************************************************************
-// RVO Example 9: Conditional return of lvalue vs. rvalue (1)
+// RVO Example 9: Conditional return of lvalue vs. rvalue (1) -> Move
 /*
 S f( bool b )
 {
@@ -202,7 +202,7 @@ int main()
 
 
 //*************************************************************************************************
-// RVO Example 10: Conditional return of lvalue vs. rvalue (2)
+// RVO Example 10: Conditional return of lvalue vs. rvalue (2) -> For false RVO, true move
 /*
 S f( bool b )
 {
@@ -221,7 +221,7 @@ int main()
 
 
 //*************************************************************************************************
-// RVO Example 11: Return from conditional operator (1)
+// RVO Example 11: Return from conditional operator (1) -> For true copying, for false RVO
 /*
 S f( bool b )
 {
@@ -238,7 +238,7 @@ int main()
 
 
 //*************************************************************************************************
-// RVO Example 12: Return from conditional operator (2)
+// RVO Example 12: Return from conditional operator (2) -> RVO
 /*
 S getS() { return S{}; }
 
