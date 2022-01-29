@@ -83,6 +83,20 @@ class ResourceOwner
    }
 
    // Step 1: Implement the copy operations of class 'ResourceOwner'.
+   ResourceOwner(const ResourceOwner& other)
+       : m_id { other.m_id }
+       , m_name { other.m_name }
+       , m_resource { new Resource(*other.m_resource) }
+   {
+   }
+
+   ResourceOwner& operator=(const ResourceOwner& other)
+   {
+       m_id = other.m_id;
+       m_name = other.m_name;
+       m_resource = new Resource(*other.m_resource);
+       return *this;
+   }
 
    // Step 2: Implement the move operations of class 'ResourceOwner'.
 
