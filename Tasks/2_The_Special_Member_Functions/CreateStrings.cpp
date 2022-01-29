@@ -17,6 +17,7 @@
 *
 **************************************************************************************************/
 
+#include <array>
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
@@ -24,17 +25,11 @@
 #include <vector>
 
 
-std::vector<std::string> createStrings()
+std::array<std::string,3UL> createStrings()
 {
-   std::vector<std::string> strings{};
-   strings.reserve( 3 );
-
    std::string s( "A long string with 32 characters" );
-
-   strings.push_back( s );
-   strings.push_back( s + s );
-   strings.push_back( s );
-
+   std::array<std::string,3UL> strings{ s, s+s, s };
+   
    return strings;
 }
 
@@ -44,16 +39,16 @@ int main()
    const size_t N( 100000UL );
 
    std::vector<std::string> strings{};
+   strings.reserve(N*3);
 
    std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
    start = std::chrono::high_resolution_clock::now();
 
    for( size_t i=0UL; i<N; ++i ) {
-      std::vector<std::string> tmp{};
-      tmp = createStrings();
-      strings.push_back( tmp[0] );
-      strings.push_back( tmp[1] );
-      strings.push_back( tmp[2] );
+      auto tmp{createStrings()};
+      strings.push_back( std::move(tmp[0]) );
+      strings.push_back( std::move(tmp[1]) );
+      strings.push_back( std::move(tmp[2]) );
    }
 
    end = std::chrono::high_resolution_clock::now();
