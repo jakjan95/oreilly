@@ -28,10 +28,17 @@ struct S
    ~S() { std::puts( "~S()" ); }
 };
 
+S makeS(){
+   return S{};
+}
 
 int main()
 {
-   S s{};
+   S s{};            // default constructor
+   S s2{s};          // copy constructor
+   S s3{makeS()};    // default constructor -> RVO
+   S s4 = makeS();   // default constructor -> RVO
+   s = makeS();      // default constructor and then copy assignment
 
    return EXIT_SUCCESS;
 }
