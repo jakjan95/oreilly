@@ -24,8 +24,8 @@
 #include <iomanip>  // For the C++14 'std::quoted'
 #include <iostream>
 #include <string>
+#include <memory>
 #include <utility>
-
 
 class Resource
 {
@@ -77,10 +77,6 @@ class ResourceOwner
       , m_resource{ resource }
    {}
 
-   ~ResourceOwner()
-   {
-      delete m_resource;
-   }
 
    // Copy constructor
    ResourceOwner( ResourceOwner const& other )
@@ -88,62 +84,39 @@ class ResourceOwner
       , m_name{ other.m_name }
    {
       if( other.m_resource != nullptr ) {
-         m_resource = new Resource( *other.m_resource );
+         m_resource.reset(new Resource( *other.m_resource ));
       }
    }
 
    // Move constructor
-   ResourceOwner( ResourceOwner&& other ) noexcept
-      : m_id      { other.m_id }
-      , m_name    { std::move( other.m_name ) }
-      , m_resource{ other.m_resource }
-   {
-      other.m_resource = nullptr;
-   }
-
+   ResourceOwner( ResourceOwner&& other ) noexcept = default;
+   
    // Copy assignment operator
    ResourceOwner& operator=( ResourceOwner const& other )
    {
-      ResourceOwner tmp( other );
-      swap( tmp );
+      m_id = other.m_id;
+      m_name = other.m_name;
+      if (other.m_resource) {
+          m_resource.reset(new Resource(*other.m_resource));
+      }
+
       return *this;
    }
 
    // Move assignment operator
-   ResourceOwner& operator=( ResourceOwner&& other ) noexcept
-   {
-      delete m_resource;
-      m_id       = other.m_id;
-      m_name     = std::move( other.m_name );
-      m_resource = other.m_resource;
-      other.m_resource = nullptr;
-      return *this;
-   }
+   ResourceOwner& operator=( ResourceOwner&& other ) noexcept = default;
 
-   void swap( ResourceOwner& other ) noexcept
-   {
-      using std::swap;
-      swap( m_id      , other.m_id       );
-      swap( m_name    , other.m_name     );
-      swap( m_resource, other.m_resource );
-   }
 
    int                id()       const { return m_id;       }
    const std::string& name()     const { return m_name;     }
-   Resource*          resource()       { return m_resource; }
-   Resource const*    resource() const { return m_resource; }
+   Resource*          resource()       { return m_resource.get(); }
+   Resource const*    resource() const { return m_resource.get(); }
 
  private:
    int m_id{ 0 };
    std::string m_name{};
-   Resource* m_resource{ nullptr };
+   std::unique_ptr<Resource> m_resource;
 };
-
-void swap( ResourceOwner& a, ResourceOwner& b ) noexcept
-{
-   a.swap( b );
-}
-
 
 int main()
 {
