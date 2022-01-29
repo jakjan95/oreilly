@@ -86,15 +86,27 @@ class ResourceOwner
    ResourceOwner(const ResourceOwner& other)
        : m_id { other.m_id }
        , m_name { other.m_name }
-       , m_resource { new Resource(*other.m_resource) }
    {
+       if (other.m_resource) {
+           m_resource = new Resource(*other.m_resource);
+       }
    }
 
    ResourceOwner& operator=(const ResourceOwner& other)
    {
+       if (this == &other) {
+           return *this;
+       }
+
        m_id = other.m_id;
        m_name = other.m_name;
-       m_resource = new Resource(*other.m_resource);
+
+       delete m_resource;
+       m_resource = nullptr;
+       
+       if (other.m_resource) {
+           m_resource = new Resource(*other.m_resource);
+       }
        return *this;
    }
 
