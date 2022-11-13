@@ -15,10 +15,11 @@
 #include <cstdlib>
 #include <iostream>
 
-
+// SOLUTION 1
+/*
 // Definition of the 'max()' function template
 template< typename T1, typename T2 >
-inline auto max( T1 const& a, T2 const& b )
+inline auto max( const T1& a, const T2& b )
 //   -> std::common_type_t<T1,T2>    // Trailing return type necessary for C++11
 {
    return ( a < b ) ? b : a;
@@ -26,8 +27,26 @@ inline auto max( T1 const& a, T2 const& b )
 
 
 // 'max()' function template for an arbitrary number of elements
-// TODO
+template <typename T1, typename T2, typename... Ts>
+inline auto max(const T1& a, const T2& b, const Ts&... values)
+{
+    return max(max(a, b), values...);
+}
+*/
 
+// SOLUTION 2
+template <typename T1, typename T2, typename... Ts>
+inline auto max(const T1& a, const T2& b, const Ts&... values)
+{
+    const auto tmp = (a < b) ? b : a;
+    if constexpr (sizeof...(Ts) == 0U) {
+        //   return (a < b) ? b : a;
+        return tmp;
+    } else {
+        //   return max(((a < b) ? b : a), values...);
+        return max(tmp, values...);
+    }
+}
 
 int main()
 {
@@ -37,8 +56,8 @@ int main()
                 " max( 1.2, 2.3 )      = " << max( 1.2, 2.3 ) << "\n"
                 " max( 1.2, -4 )       = " << max( 1.2, -4 ) << "\n"
                 " max( 1, 2.8 )        = " << max( 1, 2.8 ) << "\n"
-                //" max( 1, 5, 4 )       = " << max( 1, 5, 4 ) << "\n"
-                //" max( 1, -1.3F, 2.3 ) = " << max( 1, -1.3F, 2.3 ) << "\n"
+                " max( 1, 5, 4 )       = " << max( 1, 5, 4 ) << "\n"
+                " max( 1, -1.3F, 2.3 ) = " << max( 1, -1.3F, 2.3 ) << "\n"
                 "\n";
 
    return EXIT_SUCCESS;

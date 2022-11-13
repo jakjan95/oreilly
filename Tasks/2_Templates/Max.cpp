@@ -25,28 +25,43 @@
 
 
 // Step 1: Definition of the 'max()' function template with a single template argument
-// TODO
-
+template <typename T>
+T max(const T& a, const T& b)
+{
+    return a < b ? b : a;
+}
 
 // Step 2: Definition of the 'max()' function template with two template arguments
-// TODO
-
+template <typename T, typename U>
+auto max(const T& a, const U& b)
+{
+    return a < b ? b : a;
+}
 
 // Step 3: Overload of the 'max()' function
-// TODO
-
+int max(int a, int b)
+{
+    return a < b ? b : a;
+}
 
 // Step 4: Specialization of the 'max()' function template with a single template argument
-// TODO
-
+template <>
+int max<int>(const int& a, const int& b)
+{
+    return a < b ? b : a;
+}
 
 // Step 4: Specialization of the 'max()' function template with two template arguments
-// TODO
-
+template <>
+auto max<double, int>(const double& a, const int& b)
+{
+    std::cout << "HERE!!\n";
+    return a < b ? b : a;
+}
 
 int main()
 {
-   /*
+   
    std::cout << "\n"
                 " max( 1, 5 )     = " << max( 1, 5 ) << "\n"
                 " max( 3, 2 )     = " << max( 3, 2 ) << "\n"
@@ -54,7 +69,7 @@ int main()
                 " max( 1.2, -4 )  = " << max( 1.2, -4 ) << "\n"
                 " max( 1, 2.8 )   = " << max( 1, 2.8 ) << "\n"
                 "\n";
-   */
+   
 
    return EXIT_SUCCESS;
 }

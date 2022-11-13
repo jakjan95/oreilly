@@ -21,11 +21,19 @@
 
 
 // TODO: Implement the 'is_const' type trait to determine whether a given type is a const qualified type.
+template <typename T>
+struct is_const {
+    static constexpr bool value = false;
+};
 
+template <typename T>
+struct is_const<T const> {
+    static constexpr bool value = true;
+};
 
 int main()
 {
-   /*
+
    using Type1 = int;
    using Type2 = int const;
    using Type3 = int*;
@@ -42,7 +50,6 @@ int main()
              << " result3 = " << result3 << "\n"
              << " result4 = " << result4 << "\n"
              << "\n";
-   */
 
    return EXIT_SUCCESS;
 }

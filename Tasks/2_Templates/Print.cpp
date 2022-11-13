@@ -17,23 +17,51 @@
 #include <iostream>
 #include <string>
 
-
 // TODO: Extend the given 'print()' function by variadic templates to enable an arbitrary
 //       number of function arguments.
-template< typename T >
-std::ostream& print( std::ostream& os, const T& value )
+// SOLUTION 1
+/*
+template <typename T>
+void print(std::ostream& os, const T& value)
 {
-   return os << value;
+    os << value;
+}
+
+template <typename T, typename... Ts>
+void print(std::ostream& os, const T& value, const Ts&... values)
+{
+    print(os, value);
+    print(os, values...);
+}
+*/
+
+// SOLUTION 2
+template <typename T, typename... Ts>
+void print(std::ostream& os, const T& value, const Ts&... values)
+{
+    os << value;
+    if constexpr (sizeof...(Ts) > 0U) { // C++17 constexpr if :)
+        print(os, values...);
+    }
 }
 
 
+// SOLUTION 3
+/*
+template <typename T, typename... Ts>
+void print(std::ostream& os, const T& value, const Ts&... values)
+{
+    os << value;
+    (os << ... << values); // Fold expression (works for operators +, -, << etc.)
+}
+*/
+
 int main()
 {
-   /*
-   print( std::cout, "Hallo\n" );
-   print( std::cout, "Two ", "words\n" );
-   print( std::cout, "Numbers: ", 1, ' ', 1.2, ' ', '\n' );
-   */
 
-   return EXIT_SUCCESS;
+    print(std::cout, "Hallo\n");
+    print(std::cout, "Two ", "words\n");
+    print(std::cout, "Numbers: ", 1, ' ', 1.2, ' ', '\n');
+
+    return EXIT_SUCCESS;
 }

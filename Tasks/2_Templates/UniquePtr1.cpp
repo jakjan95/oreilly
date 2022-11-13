@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
+#include <type_traits>
 #include <utility>
 
 
@@ -69,17 +70,37 @@ class unique_ptr
 
    // Step 1: Think about the following functions:
    //  - default constructor
+   unique_ptr() = default;
+
    //  - constructor taking a pointer to a dynamic resource
+   explicit unique_ptr(T* ptr);
+
    //  - destructor
+   ~unique_ptr();
 
    // Step 4: Implement the copy and move operations:
    //  - copy constructor
+   unique_ptr(const unique_ptr& ) = delete;
+
    //  - move constructor
+   unique_ptr(unique_ptr&& other)
+       : ptr_ { other.ptr_ }
+   {
+       other.ptr_ = nullptr;
+   }
+
    //  - copy assignment operator
+   unique_ptr& operator=(const unique_ptr& ) = delete;
+
    //  - move assignment operator
 
    // Step 5: Implement move operations for different pointer types:
    //  - move constructor for different pointer types
+   template <typename U>
+   unique_ptr(unique_ptr<U>&& other);
+
+   template<typename U> friend class unique_ptr;
+
    //  - move assignment operator for different pointer types
 
    // Step 6: Implement the 'reset()' and 'release()' functions
@@ -88,11 +109,26 @@ class unique_ptr
    T* operator->() const { return ptr_;  }
 
  private:
-   T* ptr_;
+   T* ptr_{};
 };
 
+template <typename T>
+unique_ptr<T>::unique_ptr(T* ptr)
+    : ptr_ { ptr }
+{
+}
 
+template <typename T>
+unique_ptr<T>::~unique_ptr() { delete ptr_; }
 
+template <typename T> // List of class template parameteres
+template <typename U> // List of member function template parameteres
+unique_ptr<T>::unique_ptr(unique_ptr<U>&& other)
+    : ptr_ { other.ptr_ }
+{
+    static_assert(std::is_convertible<U*, T*>::value, "Invalid pointer conversion!");
+    other.ptr_ = nullptr;
+}
 
 // Step 3: Implement a 'unique_ptr' specialization for arrays
 

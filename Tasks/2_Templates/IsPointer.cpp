@@ -21,11 +21,35 @@
 
 
 // TODO: Implement the 'is_pointer' type trait to determine whether a given type is a pointer type.
+template<typename T>
+struct is_pointer{
+    static constexpr bool value = false;
+
+};
+
+template <typename T>
+struct is_pointer<T*> {
+    static constexpr bool value = true;
+};
+
+template <typename T>
+struct is_pointer<T* const> {
+    static constexpr bool value = true;
+};
+
+template <typename T>
+struct is_pointer<T* volatile> {
+    static constexpr bool value = true;
+};
+
+template <typename T>
+struct is_pointer<T* const volatile> {
+    static constexpr bool value = true;
+};
 
 
 int main()
 {
-   /*
    using Type1 = int;
    using Type2 = int const;
    using Type3 = int volatile;
@@ -35,15 +59,14 @@ int main()
    using Type7 = int* volatile;
    using Type8 = int* const volatile;
 
-   static_assert( !is_pointer_v<Type1> );
-   static_assert( !is_pointer_v<Type2> );
-   static_assert( !is_pointer_v<Type3> );
-   static_assert( !is_pointer_v<Type4> );
-   static_assert(  is_pointer_v<Type5> );
-   static_assert(  is_pointer_v<Type6> );
-   static_assert(  is_pointer_v<Type7> );
-   static_assert(  is_pointer_v<Type8> );
-   */
+   static_assert( !is_pointer<Type1>::value );
+   static_assert( !is_pointer<Type2>::value );
+   static_assert( !is_pointer<Type3>::value );
+   static_assert( !is_pointer<Type4>::value );
+   static_assert(  is_pointer<Type5>::value );
+   static_assert(  is_pointer<Type6>::value );
+   static_assert(  is_pointer<Type7>::value );
+   static_assert(  is_pointer<Type8>::value );
 
    return EXIT_SUCCESS;
 }
