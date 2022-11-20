@@ -25,7 +25,7 @@ std::string operator+( std::string_view lhs, std::string_view rhs )
 
 
 template< typename T >
-T add( const T& lhs, const T& rhs )
+auto add( const T& lhs, const T& rhs )
 {
    return lhs + rhs;
 }
@@ -39,7 +39,9 @@ int main()
    std::string_view sv1{ s1 };
    std::string_view sv2{ s2 };
 
-   const auto result = add( sv1, sv2 );
+   const auto result = add( sv1, sv2 ); // we return new string_view here not string, which is a pointer to string
+                                        // so under the hood this have mess with addresses
+                                        // simple solution is to return auto instead of passed type :)
 
    std::cout << "\n result = " << result << "\n\n";
 

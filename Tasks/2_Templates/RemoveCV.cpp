@@ -19,11 +19,31 @@
 
 
 // TODO: Implement the 'remove_cv' type trait to remove cv qualifiers from the given type.
+template <typename T>
+struct remove_cv {
+    using type = T;
+};
 
+template <typename T>
+struct remove_cv<T const> {
+    using type = T;
+};
+template <typename T>
+struct remove_cv<T volatile> {
+    using type = T;
+};
+
+template <typename T>
+struct remove_cv<T const volatile> {
+    using type = T;
+};
+
+template <typename T>
+using remove_cv_t = typename remove_cv<T>::type;
 
 int main()
 {
-   /*
+   
    using Type1  = int;
    using Type2  = int const;
    using Type3  = int volatile;
@@ -51,7 +71,7 @@ int main()
    static_assert( std::is_same< remove_cv_t<Type10>, int const&          >::value, "Invalid type detected" );
    static_assert( std::is_same< remove_cv_t<Type11>, int volatile&       >::value, "Invalid type detected" );
    static_assert( std::is_same< remove_cv_t<Type12>, int const volatile& >::value, "Invalid type detected" );
-   */
+   
 
    return EXIT_SUCCESS;
 }

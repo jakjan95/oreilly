@@ -17,6 +17,7 @@
 **************************************************************************************************/
 
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <string>
 
@@ -24,16 +25,22 @@
 // Step 1: Write a generic 'compare()' function that returns a negative number if the left-hand
 //         side argument is smaller, 0 if both arguments are equal, and a positive number if the
 //         left-hand side argument is larger.
-// TODO
-
+template <typename T>
+int compare(T const& lhs, T const& rhs)
+{
+    return lhs == rhs ? 0 : lhs > rhs ? 1 : -1;
+}
 
 // Step 2: Specialize the 'compare()' function for pointers to char.
-// TODO
-
+template <>
+int compare<const char*>(const char* const& lhs, const char* const& rhs)
+{
+    return strcmp(lhs, rhs);
+}
 
 int main()
 {
-   /*
+   
    {
       const int i1 = 1;
       const int i2 = 2;
@@ -69,7 +76,7 @@ int main()
          std::cout << "compare( const char*, const char* ) works!\n";
       }
    }
-   */
+   
 
    return EXIT_SUCCESS;
 }

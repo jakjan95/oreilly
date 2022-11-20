@@ -28,11 +28,21 @@ using namespace std::string_literals;
 //       function needs two template type parameters: One represents the function's iterator
 //       parameters, one represents the type of the value to find. Use your function to find a
 //       given value in a 'std::vector<int>' and a 'std::list<std::string>'.
+template <typename Itor, typename ValueType>
+Itor find(Itor first, Itor last, const ValueType& v)
+{
+    for (; first != last; first++) {
+        if (*first == v) {
+            return first;
+        }
+    }
 
+    return last;
+}
 
 int main()
 {
-   /*
+   
    // Find a value in a std::vector<int>
    {
       std::vector<int> v{ 3, 5, 2, 7, 5, 4, 3 };
@@ -52,7 +62,7 @@ int main()
          std::cout << "Found 'Bjarne' in the list!\n";
       }
    }
-   */
+   
 
    return EXIT_SUCCESS;
 }
