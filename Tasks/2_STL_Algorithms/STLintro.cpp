@@ -30,43 +30,60 @@ using Ints = std::vector<int>;
 
 void printToScreen( Ints const& ints )
 {
-   // TODO
+    std::copy(std::cbegin(ints), std::cend(ints), std::ostream_iterator<int>(std::cout, " "));
+    std::cout << "\n";
 }
 
 
 void reverseOrder( Ints& ints )
 {
-   // TODO
+    std::reverse(std::begin(ints), std::end(ints));
+    std::cout << "After reversing: ";
+    printToScreen(ints);
 }
 
 
 void findFirstFive( Ints const& ints )
 {
-   // TODO
+    auto it = std::find(std::cbegin(ints), std::cend(ints), 5);
+    if (it != std::cend(ints)) {
+        std::cout << "First 5 found at position: " << std::distance(std::cbegin(ints), it) << "\n";
+    }
 }
 
 
 void countNumberOfFives( Ints const& ints )
 {
-   // TODO
+    auto numberOfFives = std::count_if(std::cbegin(ints), std::cend(ints),
+        [](const auto& el) { return el == 5; });
+    std::cout << "Number of Fives in container: " << numberOfFives << "\n";
 }
 
 
 void replaceAllFivesWithTwos( Ints& ints )
 {
-   // TODO
+    std::replace(std::begin(ints), std::end(ints), 5, 2);
+    std::cout << "After replacing Fives with Twos: ";
+    printToScreen(ints);
 }
 
 
 void sortInts( Ints& ints )
 {
-   // TODO
+    std::sort(std::begin(ints), std::end(ints));
+    std::cout << "After sorting: ";
+    printToScreen(ints);
 }
 
 
 void findAllTwos( Ints const& ints )
 {
-   // TODO
+   //or as it is sorted we can use lower_bound and upper_bound or equal_range
+    auto it = std::find(std::cbegin(ints), std::cend(ints), 2);
+    while (it != std::cend(ints)) {
+        std::cout << "Found 2 at position: " << std::distance(std::cbegin(ints), it) << "\n";
+        it = std::find(std::next(it), std::cend(ints), 2);
+    }
 }
 
 

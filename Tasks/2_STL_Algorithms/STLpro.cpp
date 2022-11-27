@@ -22,6 +22,7 @@
 #include <iostream>
 #include <numeric>
 #include <vector>
+#include <iterator>
 
 
 using Ints    = std::vector<int>;
@@ -31,42 +32,52 @@ using Doubles = std::vector<double>;
 template< typename T >
 void printVector( std::vector<T> const& numbers )
 {
-   // TODO
+    for (const auto& number : numbers) {
+        std::cout << number << " ";
+    }
+    std::cout << "\n";
 }
 
 
 int computeProduct( Ints const& ints )
 {
-   // TODO
-   return 0;
+    using NumType = Ints::value_type;
+    return std::accumulate(std::cbegin(ints), std::cend(ints), NumType { 1 },
+        [](auto&& product, const auto& el) { return product * el; });
 }
 
 
 Ints extractInts( Ints const& ints )
 {
-   // TODO
-   return Ints{};
+    Ints result {};
+    std::copy_if(std::cbegin(ints), std::cend(ints), std::back_inserter(result),
+        [](const auto& el) { return el <= 5; });
+    return result;
 }
 
 
 double computeLength( Ints const& ints )
 {
-   // TODO
-   return 0.0;
+    return std::sqrt(std::inner_product(std::cbegin(ints), std::cend(ints), std::cbegin(ints), 0));
 }
 
 
 Doubles computeRatios( Ints const& ints )
 {
-   // TODO
-   return Doubles{};
+    Doubles ratios {};
+    std::transform(std::next(std::begin(ints)), std::end(ints), std::begin(ints), std::back_inserter(ratios),
+        [](const auto& dividend, const auto& divisor) {
+            return static_cast<double>(dividend) / divisor;
+        });
+    return ratios;
 }
 
 
 Ints moveRange( Ints const& ints )
 {
-   // TODO
-   return Ints{};
+    auto result = ints;
+    std::rotate(std::begin(result), std::next(std::begin(result), 3), std::end(result));
+    return result;
 }
 
 
