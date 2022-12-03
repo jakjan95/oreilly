@@ -26,11 +26,19 @@
 
 
 // TODO: Implement the 'is_palindrome()' algorithm
+template <typename Itor>
+bool is_palindrome(Itor first, Itor last)
+{
+    if (first == last) {
+        return false;
+    }
 
+    return std::equal(first, std::next(first, std::distance(first, last) / 2), std::reverse_iterator(last));
+}
 
 int main()
 {
-   /*
+   
    std::vector<int> v1{ 3, 2, 11, 5, 4, 4, 5, 11, 2, 3 };   // Palindrome with even number of elements
    std::vector<int> v2{ 3, 2, 11, 5, 4, 5, 11, 2, 3 };      // Palindrome with odd number of elements
    std::vector<int> v3{ 3, 2, 11, 5, 4, 99, 5, 11, 2, 3 };  // Not a palindrome
@@ -45,7 +53,7 @@ int main()
    assert(  is_palindrome( begin(s1), end(s1) ) );
    assert(  is_palindrome( begin(s2), end(s2) ) );
    assert( !is_palindrome( begin(s3), end(s3) ) );
-   */
+   
 
    return EXIT_SUCCESS;
 }

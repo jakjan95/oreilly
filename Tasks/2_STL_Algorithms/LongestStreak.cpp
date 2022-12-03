@@ -28,13 +28,40 @@
 #include <numeric>
 #include <vector>
 
-
 // TODO: Implement the 'longest_streak()' algorithm
+template <typename Iter>
+int longest_streak(Iter first, Iter last)
+{
 
+    if (first == last) {
+        return 0;
+    }
+
+    std::pair<Iter, int> actual { first, 0 };
+    int max { -1 };
+
+    for (auto it = first; it != last; ++it) {
+        if (*it == *actual.first) {
+            ++actual.second;
+        } else {
+            if (actual.second > max) {
+                max = actual.second;
+            }
+            actual.first = it;
+            actual.second = 1;
+        }
+    }
+
+    if (actual.second > max) {
+        max = actual.second;
+    }
+
+    return max;
+}
 
 int main()
 {
-   /*
+   
    std::vector<int> v1{};
    std::vector<int> v2{ 0 };
    std::vector<int> v3{ 0, 0 };
@@ -65,7 +92,7 @@ int main()
    std::cout << " The longest streak in v7 is " << streak7 << " (expected: 3)\n";
    std::cout << " The longest streak in v8 is " << streak8 << " (expected: 4)\n";
    std::cout << " The longest streak in v9 is " << streak9 << " (expected: 8)\n";
-   */
+   
 
    return EXIT_SUCCESS;
 }

@@ -23,13 +23,23 @@
 #include <string>
 #include <vector>
 
-
-template< typename OutputIterator >
-void extract_strings( std::string s, OutputIterator out )
+template <typename OutputIterator>
+void extract_strings(std::string s, OutputIterator out)
 {
-   // TODO
-}
+    auto lastBegin = s.begin();
+    for (auto it = s.begin(); it != s.end(); ++it) {
+        if (*it == ' ') {
+            auto tmpStr = std::string(lastBegin, it);
+            lastBegin = std::next(it);
+            *out = std::move(tmpStr);
+            ++out;
+        }
+    }
 
+    auto tmpStr = std::string(lastBegin, s.end());
+    *out = std::move(tmpStr);
+    ++out;
+}
 
 int main()
 {

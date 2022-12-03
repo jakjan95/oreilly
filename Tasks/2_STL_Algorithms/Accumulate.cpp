@@ -28,28 +28,48 @@
 #include <list>
 #include <vector>
 
-
 // Step 1: Implement the 'accumulate()' algorithm. The algorithm should take a pair of iterators,
 //         an initial value for the reduction operation, and a binary operation that performs the
 //         elementwise reduction (see https://en.cppreference.com/w/cpp/algorithm/accumulate,
 //         overload (2)).
-// TODO
+template <typename InputIt, typename T, typename BinaryOperation>
+constexpr T accumulate(InputIt first, InputIt last, T init, BinaryOperation op)
+{
+    while (first != last) {
+        init = op(std::move(init), *first++);
+    }
+    return init;
+}
 
 // Step 2: Implement an overload of the 'accumulate()' algorithm that uses 'std::plus' as the
 //         default binary operation.
-// TODO
+template <typename InputIt, typename T>
+constexpr T accumulate(InputIt first, InputIt last, T init)
+{
+    return accumulate(first, last, init, std::plus<> {});
+}
 
 // Step 3: Implement an overload of the 'accumulate()' algorithm that uses the default of the
 //         underlying data type as initial value and 'std::plus' as the default binary operation.
-// TODO
+template <typename InputIt>
+constexpr auto accumulate(InputIt first, InputIt last)
+{
+    using ValueType = decltype(*first);
+    return accumulate(first, last, ValueType {});
+}
 
 // Step 4: Test your implementation with a custom binary operation (e.g. 'Times').
-// TODO
-
+struct Times {
+   template <typename T>
+    constexpr T operator()(const T& lhs, const T& rhs) const
+    {
+        return lhs * rhs;
+    }
+};
 
 int main()
 {
-   /*
+   
    // Sum of values in a vector of integral values
    {
       const std::vector<int> v{ 1, 3, 5, 7 };
@@ -63,7 +83,7 @@ int main()
       const auto sum = accumulate( begin(l), end(l), 1.0, Times{} );
       std::cout << "\n sum = " << sum << "\n\n";
    }
-   */
+   
 
    return EXIT_SUCCESS;
 }

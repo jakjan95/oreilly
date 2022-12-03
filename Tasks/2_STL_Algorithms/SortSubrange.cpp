@@ -21,11 +21,30 @@
 
 
 // TODO: Implement the 'sort_subrange()' algorithm
+template <typename Itor, typename Compare>
+void sort_subrange(Itor first, Itor last, Itor rangeBegin, Itor rangeEnd, Compare comp)
+{
+    if (rangeBegin == rangeEnd) {
+        return;
+    }
 
+    if (rangeBegin != first) {
+        std::nth_element(first, rangeBegin, last, comp);
+        ++rangeBegin;
+    }
+
+    std::partial_sort(rangeBegin, rangeEnd, last, comp);
+}
+
+template <typename Itor>
+void sort_subrange(Itor first, Itor last, Itor rangeBegin, Itor rangeEnd)
+{
+    sort_subrange(first, last, rangeBegin, rangeEnd, std::less<>());
+}
 
 int main()
 {
-   /*
+   
    std::vector<int> v{ 3, 2, 11, 5, 4, 6, 12, 7, 8, 9, 1, 10 };
 
    // Sort the subrange [begin+2,begin+6) within the range [begin,end) in ascending order
@@ -43,7 +62,7 @@ int main()
    for( int i : v )
       std::cout << ' ' << i;
    std::cout << " )\n\n";
-   */
+   
 
    return EXIT_SUCCESS;
 }
