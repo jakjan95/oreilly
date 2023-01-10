@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <iomanip>  // For the C++14 'std::quoted'
 #include <iostream>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -77,32 +78,92 @@ class ResourceOwner
       , m_resource{ resource }
    {}
 
-   ~ResourceOwner()
-   {
-      delete m_resource;
-   }
+   ~ResourceOwner() = default;
+   // {
+   //    delete m_resource;
+   // }
 
    // Step 1: Implement the copy constructor of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner(const ResourceOwner& other)
+       : m_id { other.m_id }
+       , m_name { other.m_name }
+      //  , m_resource { other.m_resource ? new Resource(*other.m_resource) : nullptr }
+   {
+       if (other.m_resource) {
+           m_resource.reset(new Resource(*other.m_resource));
+       }
+   }
 
    // Step 1: Implement the copy assignment operator of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner& operator=(const ResourceOwner& other)
+   {
+       // SOLUTION 1 copy & swap idiom
+       if (this == &other) {
+           return *this;
+       }
+
+       ResourceOwner tmp(other);
+       swap(tmp);
+       return *this;
+
+       // SOLUTION 2 - faster
+       //  if (this == &other) {
+       //      return *this;
+       //  }
+
+       //  delete m_resource;
+
+       //  m_id = other.m_id;
+       //  m_name = other.m_name;
+       //  m_resource = nullptr;
+
+       //  if (other.m_resource) {
+       //      m_resource = new Resource(*other.m_resource);
+       //  }
+
+       //  return *this;
+   }
+
+   void swap(ResourceOwner& other)
+   {
+       std::swap(m_id, other.m_id);
+       std::swap(m_name, other.m_name);
+       std::swap(m_resource, other.m_resource);
+   }
 
    // Step 2: Implement the move constructor of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner(ResourceOwner&& other) = default;
+   //     : m_id { other.m_id }
+   //     , m_name { std::move(other.m_name) }
+   //     , m_resource { std::move(other.m_resource) }
+   // {
+   //    // other.m_resource=nullptr;
+   // }
 
    // Step 2: Implement the move assignment operator of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner& operator=(ResourceOwner&& other) = default;
+   // {
+   //    // SOULITON 1 - move and swap
+   //    ResourceOwner tmp(std::move(other));
+   //    swap(tmp);
+   //    return *this;
+
+   //    // SOLUTION 2
+   //    //  m_id = other.m_id;
+   //    //  m_name = std::move(other.m_name);
+   //    //  m_resource = std::move(other.m_resource);
+   //    //  return *this;
+   // }
 
    int                id()       const { return m_id;       }
    const std::string& name()     const { return m_name;     }
-   Resource*          resource()       { return m_resource; }
-   Resource const*    resource() const { return m_resource; }
+   Resource*          resource()       { return m_resource.get(); }
+   Resource const*    resource() const { return m_resource.get(); }
 
  private:
    int m_id{ 0 };
    std::string m_name{};
-   Resource* m_resource{ nullptr };
+   std::unique_ptr<Resource> m_resource{ nullptr };
 };
 
 
