@@ -76,20 +76,14 @@ class ResourceOwner
       , m_name    { name }
       , m_resource{ resource }
    {}
-
-   ~ResourceOwner()
-   {
-      delete m_resource;
-   }
-
    // Step 1: Implement the copy constructor of class 'ResourceOwner'.
-   ResourceOwner( ResourceOwner const& other )
-      : m_id  { other.m_id }
-      , m_name{ other.m_name }
+   ResourceOwner(ResourceOwner const& other)
+       : m_id { other.m_id }
+       , m_name { other.m_name }
    {
-      if( other.m_resource != nullptr ) {
-         m_resource = new Resource( *other.m_resource );
-      }
+       if (other.m_resource != nullptr) {
+           m_resource.reset(new Resource(*other.m_resource));
+       }
    }
 
    // Step 1: Implement the copy assignment operator of class 'ResourceOwner'.
@@ -101,44 +95,10 @@ class ResourceOwner
    }
 
    // Step 2: Implement the move constructor of class 'ResourceOwner'.
-   ResourceOwner( ResourceOwner&& other ) noexcept
-      : m_id      { other.m_id }
-      , m_name    { std::move( other.m_name ) }
-      , m_resource{ other.m_resource }
-   {
-      other.m_resource = nullptr;
-   }
+   ResourceOwner( ResourceOwner&& other ) noexcept=default;
 
    // Step 2: Implement the move assignment operator of class 'ResourceOwner'.
-   ResourceOwner& operator=( ResourceOwner&& other ) noexcept
-   {
-      // Solution 1: Manual/Cannonical solution
-      //  Advantages: Minimum number of operations (fast), old resource is destroyed immediately
-      //  Disadvantages: Explicit delete outside of destructor
-      delete m_resource;
-      m_id       = other.m_id;
-      m_name     = std::move( other.m_name );
-      m_resource = other.m_resource;
-      other.m_resource = nullptr;
-      return *this;
-
-      // Solution 2: swap
-      //  Advantages: Elegant, very short, no explicit delete outside destructor
-      //  Disadvantages: Old resource is NOT destroyed immediately, a few more operations
-      /*
-      swap( other );
-      return *this;
-      */
-
-      // Solution 3: Copy-and-swap idiom
-      //  Advantages: Short, old resource is destroyed at end of assignment, no explicit delete
-      //  Disadvantages: Slowest solution (but still fast)
-      /*
-      ResourceOwner tmp( std::move(other) );
-      swap( tmp );
-      return *this;
-      */
-   }
+   ResourceOwner& operator=( ResourceOwner&& other ) noexcept = default;
 
    void swap( ResourceOwner& other ) noexcept
    {
@@ -150,13 +110,14 @@ class ResourceOwner
 
    int                id()       const { return m_id;       }
    const std::string& name()     const { return m_name;     }
-   Resource*          resource()       { return m_resource; }
-   Resource const*    resource() const { return m_resource; }
+   Resource*          resource()       { return m_resource.get(); }
+   Resource const*    resource() const { return m_resource.get(); }
 
  private:
    int m_id{ 0 };
    std::string m_name{};
-   Resource* m_resource{ nullptr };
+   std::unique_ptr<Resource>  m_resource{ nullptr };
+
 };
 
 void swap( ResourceOwner& a, ResourceOwner& b ) noexcept

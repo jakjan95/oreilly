@@ -12,7 +12,7 @@
 
 # Compiler settings
 CXX = g++
-CXXFLAGS = -std=c++17
+CXXFLAGS = -std=c++2a
 
 
 # Setting the source and binary files

@@ -24,7 +24,7 @@
 *
 **************************************************************************************************/
 
-//#include <concepts>  // C++20 concepts
+#include <concepts>  // C++20 concepts
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -48,14 +48,36 @@ class StrongType final
    using value_type = T;
 
    //-- Step 1: The compiler-generated constructors (special member functions) --------------------
-   // TODO
+   StrongType() = default;
+   StrongType(const StrongType& other) = default;
+   StrongType(StrongType&& other) = default;
+
 
    //-- Step 2: Conversion constructors from different non-strong types ---------------------------
-   // TODO
+   
+   // StrongType(T&& value)
+   //     : value_ { std::move(value) }
+   // {
+   // }
+
+   template <typename U>
+   requires std::convertible_to<U, T> explicit constexpr StrongType(U&& value)
+       : value_ { std::forward<U>(value) }
+   {
+   }
 
    //-- Step 3: Conversion constructors from other strong types -----------------------------------
-   // TODO
+   template <typename U>
+   requires std::convertible_to<U, T> explicit constexpr StrongType(const StrongType<U, Tag>& strong)
+       : value_ { strong.get() }
+   {
+   }
 
+   template <typename U>
+   requires std::convertible_to<U, T> explicit constexpr StrongType(StrongType<U, Tag>&& strong)
+       : value_ { std::move(strong.get()) }
+   {
+   }
 
    //----------------------------------------------------------------------------------------------
    ~StrongType() = default;
@@ -102,7 +124,6 @@ using Email  = StrongType<std::string,struct EmailTag>;
 int main()
 {
    // Step 1: The compiler-generated constructors (special member functions)
-   /*
    Email email1{};
    std::cout << " email1 = \"" << email1 << "\"\n";
 
@@ -112,11 +133,8 @@ int main()
 
    Email email3{ std::move(tmp) };
    std::cout << " email3 = \"" << email3 << "\"\n";
-   */
-
 
    // Step 2: Conversion constructors from different non-strong types
-   /*
    const std::string s{ "jane.doe@yahoo.com" };
    Email email4{ s };
    std::cout << " email4 = \"" << email4 << "\"\n";
@@ -126,18 +144,17 @@ int main()
 
    Email email6{ "support@cppreference.com" };
    std::cout << " email6 = \"" << email6 << "\"\n";
-   */
+   
 
 
    // Step 3: Conversion constructors from other strong types
-   /*
    const LMeter lmeter{ 10UL };
    Meter meter1{ lmeter };
    std::cout << " meter1 = \"" << meter1 << "\"\n";
 
    Meter meter2{ LMeter{ 20UL } };
    std::cout << " meter2 = \"" << meter2 << "\"\n";
-   */
+
 
 
    return EXIT_SUCCESS;

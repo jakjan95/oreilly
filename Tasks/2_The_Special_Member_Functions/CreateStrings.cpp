@@ -73,9 +73,9 @@ std::vector<std::string> createStrings_2()
 
    std::string s( "A long string with 32 characters" );
 
-   strings.push_back( s );
-   strings.push_back( s + s );
-   strings.push_back( s );
+   strings.emplace_back( s );
+   strings.emplace_back( s + s );
+   strings.emplace_back( s );
 
    return strings;
 }
@@ -85,15 +85,15 @@ static void benchmarkOptimization( benchmark::State& state )
    for( auto _ : state )
    {
       std::vector<std::string> strings{};
+      strings.reserve(N*3);
+      std::vector<std::string> tmp = createStrings_2();
 
       for( size_t i=0UL; i<N; ++i ) {
-         std::vector<std::string> tmp{};
-         tmp = createStrings_2();
-         strings.push_back( tmp[0] );
-         strings.push_back( tmp[1] );
-         strings.push_back( tmp[2] );
+         strings.emplace_back( tmp[0] );
+         strings.emplace_back( tmp[1] );
+         strings.emplace_back( tmp[2] );
       }
    }
 }
-//BENCHMARK(benchmarkOptimization);
+BENCHMARK(benchmarkOptimization);
 

@@ -41,6 +41,12 @@ const T& max( const T& a, const T& b )
    return a < b ? b : a;
 }
 
+template <typename T1, typename T2>
+auto max(T1&& a, T2&& b)
+{
+    using result_t = decltype(a < b ? std::forward<T2>(b) : std::forward<T1>(a));
+    return static_cast<result_t>(a < b ? std::forward<T2>(b) : std::forward<T1>(a));
+}
 
 int main()
 {
