@@ -49,22 +49,6 @@ struct Point
    double y;
 };
 
-
-//---- <DrawStrategy.h> ---------------------------------------------------------------------------
-
-class Circle;
-class Square;
-
-class DrawStrategy
-{
- public:
-   virtual ~DrawStrategy() = default;
-
-   virtual void draw( Circle const& circle ) const = 0;
-   virtual void draw( Square const& square ) const = 0;
-};
-
-
 //---- <Shape.h> ----------------------------------------------------------------------------------
 
 class Shape
@@ -80,24 +64,27 @@ class Shape
 
 //#include <Point.h>
 //#include <Shape.h>
-//#include <DrawStrategy.h>
+#include <functional>
 #include <memory>
 #include <stdexcept>
 
 class Circle : public Shape
 {
  public:
-   Circle( double radius, std::unique_ptr<DrawStrategy>&& drawer )
+   using DrawStrategy = std::function<void(const Circle&)>;
+
+
+   Circle( double radius, DrawStrategy drawer )
       : radius_( radius )
       , center_()
-      , drawer_( std::move(drawer) )
+      , drawer_(std::move(drawer))
    {
       if( !drawer_ ) {
          throw std::invalid_argument( "Invalid draw strategy" );
       }
    }
 
-   void draw() const override { drawer_->draw(*this); }
+   void draw() const override { drawer_(*this); }
 
    double radius() const { return radius_; }
    Point  center() const { return center_; }
@@ -105,7 +92,7 @@ class Circle : public Shape
  private:
    double radius_;
    Point center_;
-   std::unique_ptr<DrawStrategy> drawer_;
+   DrawStrategy drawer_;
 };
 
 
@@ -120,17 +107,20 @@ class Circle : public Shape
 class Square : public Shape
 {
  public:
-   Square( double side, std::unique_ptr<DrawStrategy>&& drawer )
+   using DrawStrategy = std::function<void(const Square&)>;
+
+
+   Square( double side, DrawStrategy drawer)
       : side_( side )
       , center_()
-      , drawer_( std::move(drawer) )
+      , drawer_(std::move(drawer))
    {
       if( !drawer_ ) {
          throw std::invalid_argument( "Invalid draw strategy" );
       }
    }
 
-   void draw() const override { drawer_->draw(*this); }
+   void draw() const override { drawer_(*this); }
 
    double side() const { return side_; }
    Point  center() const { return center_; }
@@ -138,30 +128,29 @@ class Square : public Shape
  private:
    double side_;
    Point center_;
-   std::unique_ptr<DrawStrategy> drawer_;
+   DrawStrategy drawer_;
+
 };
 
 
 //---- <TestDrawStrategy.h> -----------------------------------------------------------------------
-
-//#include <DrawStrategy.h>
 //#include <Circle.h>
 //#include <Square.h>
 //#include <GraphicsLibrary.h>
 #include <iostream>
 
-class TestDrawStrategy : public DrawStrategy
+class TestDrawStrategy
 {
  public:
    explicit TestDrawStrategy( Color color ) : color_(color) {}
 
-   void draw( Circle const& circle ) const override
+   void operator()( Circle const& circle ) const
    {
       std::cout << "circle: radius=" << circle.radius()
                 << ", color = " << to_string(color_) << '\n';
    }
 
-   void draw( Square const& square ) const override
+   void operator()( Square const& square ) const
    {
       std::cout << "square: side=" << square.side()
                 << ", color = " << to_string(color_) << '\n';
@@ -214,12 +203,11 @@ int main()
 {
    Shapes shapes{};
 
-   shapes.emplace_back( std::make_unique<Circle>( 2.3, std::make_unique<TestDrawStrategy>(Color::red) ) );
-   shapes.emplace_back( std::make_unique<Square>( 1.2, std::make_unique<TestDrawStrategy>(Color::green) ) );
-   shapes.emplace_back( std::make_unique<Circle>( 4.1, std::make_unique<TestDrawStrategy>(Color::blue) ) );
+   shapes.emplace_back( std::make_unique<Circle>( 2.3, TestDrawStrategy(Color::red)  ) );
+   shapes.emplace_back( std::make_unique<Square>( 1.2, TestDrawStrategy(Color::green) ) );
+   shapes.emplace_back( std::make_unique<Circle>( 4.1, TestDrawStrategy(Color::blue) ) );
 
    drawAllShapes( shapes );
 
    return EXIT_SUCCESS;
 }
-
