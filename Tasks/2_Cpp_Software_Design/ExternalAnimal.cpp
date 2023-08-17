@@ -55,6 +55,17 @@ class Sheep
    std::string name_;
 };
 
+class Human{
+   public:
+   explicit Human( std::string name ) : name_{ std::move(name) } {}
+
+   std::string const& name() const { return name_; }
+   void shear() const { std::cout << name_ << " is shorn\n"; }
+
+ private:
+   std::string name_;
+};
+
 
 //---- <AnimalConcept.h> --------------------------------------------------------------------------
 
@@ -62,7 +73,25 @@ class Sheep
 //       of animals.
 
 class AnimalConcept
-{};
+{
+  public:
+    virtual ~AnimalConcept() = default;
+    virtual void makeSound() const = 0;
+
+};
+
+template<typename AnimalT>
+class AnimalModel : public AnimalConcept{
+  public:
+    AnimalModel(AnimalT animal)
+      : animal_{animal}
+    {}
+
+    void makeSound() const override { free_makeSound(animal_);}
+
+  private:
+    AnimalT animal_;
+};
 
 
 //---- <Animals.h> --------------------------------------------------------------------------------
@@ -82,6 +111,8 @@ using Animals = std::vector< std::unique_ptr<AnimalConcept> >;
 void free_makeSound( Dog const& d ) { std::cout << d.name() << ": bark!\n"; }
 void free_makeSound( Cat const& c ) { std::cout << c.name() << ": meow!\n"; }
 void free_makeSound( Sheep const& s ) { std::cout << s.name() << ": baa!\n"; }
+void free_makeSound( Human const& h ) { std::cout << h.name() << ": Hello!\n"; }
+
 
 
 //---- <Main.cpp> ---------------------------------------------------------------------------------
@@ -93,17 +124,17 @@ void free_makeSound( Sheep const& s ) { std::cout << s.name() << ": baa!\n"; }
 
 int main()
 {
-   /*
    Animals animals{};
 
    animals.emplace_back( std::make_unique<AnimalModel<Dog>>( Dog{ "Lassy" } ) );
    animals.emplace_back( std::make_unique<AnimalModel<Cat>>( Cat{ "Garfield" } ) );
    animals.emplace_back( std::make_unique<AnimalModel<Sheep>>( Sheep{ "Dolly" } ) );
+   animals.emplace_back( std::make_unique<AnimalModel<Human>>( Human{ "John Doe" } ) );
+
 
    for( auto const& animal : animals ) {
       animal->makeSound();
    }
-   */
 
    return EXIT_SUCCESS;
 }
