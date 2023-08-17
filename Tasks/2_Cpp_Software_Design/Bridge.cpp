@@ -124,46 +124,85 @@ class E
    std::string s_;
 };
 
+//---- <Fwd.h> --------------------------------------------------------------------------------------
+
+class C;
+class E;
+
 
 //---- <X.h> --------------------------------------------------------------------------------------
 
-#include <cassert>
-#include <iostream>
-#include <list>
-
 //#include <A.h>
 //#include <B.h>
-//#include <C.h>
-//#include <D.h>
-//#include <E.h>
 
+//#include <Fwd.h>
+
+
+// library includes after header includes
+#include <iosfwd> // iostream at least 50k lines of the code, iosfwd - only forward declarations
+#include <memory>
+
+// Inheritance introduces tight coupling(strong dependency)
 class X : public A, private B
 {
  public:
    X( const C& );
 
+   ~X(); //solve problem with the unique_ptr but breaks The Rule of 5
+   // The Rule of 5 - TODO:
+   X(const X&);
+   X& operator=(const X&);
+   X(X&&);
+   X& operator=(X&&);
+
    B  f( int, char* );
    C  f( int, C );
    C& g( B );
-   E  h( E );
+   E  h( E ); // Function declaration -> definition of type is not needed
    std::ostream& print( std::ostream& ) const override;
 
  private:
-   std::list<C> clist_;
-   D            d_;
+   // If you don't write destructor for X, the compiller generate it for you in the header file
+   // The destructor of Impl is missing for the unique_ptr in the header file(as it is implemented in the cpp)
+   struct Impl;
+   std::unique_ptr<Impl> pimpl_; // Pointer to implementation (PIMPL idiom) -> the simplest form of the bridge
+   //it introduces overhead of approximately 10%
 };
 
 
 //---- <X.cpp> ------------------------------------------------------------------------------------
 
-//#include <X.h>
+//Include order:
+
+//#include <X.h> // Self-containment(my own header file)
+
+//#include <D.h>
+//#include <E.h> // include before the standard includes (my own library)
+
+// Third-party library(like boost)
+
+#include <cassert>  // after X.h -> headers self contained
+#include <list>
+#include <iostream>
+
+struct X::Impl
+{
+   Impl(const C& c)
+      : clist_{ c, c, c }
+      , d_{ "1", "2", "3" } 
+   {}
+
+   std::list<C> clist_;
+   D            d_;
+};
 
 X::X( const C& c )
    : A{}
    , B{ "B" }
-   , clist_{ c, c, c }
-   , d_{ "1", "2", "3" }
+   , pimpl_{std::make_unique<Impl>(c)}
 {}
+
+X::~X() = default;
 
 B X::f( int, char* )
 {
@@ -172,13 +211,13 @@ B X::f( int, char* )
 
 C X::f( int, C )
 {
-   assert( !clist_.empty() );
-   return *begin(clist_);
+   assert( !pimpl_->clist_.empty() );
+   return *begin(pimpl_->clist_);
 }
 
 C& X::g( B )
 {
-   return d_;
+   return pimpl_->d_;
 }
 
 E X::h( E )
