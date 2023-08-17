@@ -59,11 +59,54 @@ struct Point
 class Shape
 {
    // TODO: Implement the 'Shape' class by means of Type Erasure.
+   public:
+      
+      template<typename ShapeT> //possibility to introduce a Strategy DP which allows inject strategy here
+      Shape(ShapeT shape)
+      : pimpl_{std::make_unique<Model<ShapeT>>(shape)}
+      {}
+
+      void draw() const{pimpl_->draw();}
+
+
+      // Introduction of Shape copying using Prototype from Model
+      Shape(Shape const& other)
+         :pimpl_{other.pimpl_->clone()}
+      {} 
+
+      Shape& operator=(Shape const& other){
+         Shape copy{other};
+         pimpl_.swap(copy.pimpl_);
+         return *this;
+      }
+
+      Shape(Shape&&) = default;
+      Shape& operator=(Shape&&)=default;
+
+   private:
+   struct Concept //External Polymorphism design pattern
+   {
+      virtual ~Concept() = default;
+      virtual void draw(/*parameters*/) const = 0;
+      virtual std::unique_ptr<Concept> clone() const = 0; // Prototype design pattern
+   };
+
+   template <typename ShapeT>
+   struct Model : public Concept
+   {
+      explicit Model(ShapeT shape) : shape_{shape}{}
+      void draw() const override{free_draw(shape_); }
+      std::unique_ptr<Concept> clone() const override {return std::make_unique<Model>(*this);}
+
+      ShapeT shape_;
+   };
+
+   std::unique_ptr<Concept> pimpl_; // Bridge design pattern
 };
 
 void free_draw( Shape const& shape )
 {
-   // TODO: Implement the 'draw()' function
+   shape.draw();
 }
 
 
@@ -205,7 +248,6 @@ void drawAllShapes( Shapes const& shapes )
 
 int main()
 {
-   /*
    Shapes shapes{};
 
    shapes.emplace_back( Circle{ 2.3 } );
@@ -213,7 +255,6 @@ int main()
    shapes.emplace_back( Circle{ 4.1 } );
 
    drawAllShapes( shapes );
-   */
 
    return EXIT_SUCCESS;
 }
