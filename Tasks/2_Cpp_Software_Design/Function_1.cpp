@@ -21,10 +21,40 @@
 
 //---- <Function.h> -------------------------------------------------------------------------------
 
-template< typename Fn >
+template< typename Fn > // int(void), double(double)
 class Function;
 
 // TODO: Implement a simplified std::function by means of type erasure.
+
+// R(Args...) -> the most generic function type
+template< typename R, typename... Args>
+class Function<R(Args...)>
+{
+   public:
+      template<typename Callable>
+      Function(Callable callable)
+      : pimpl_{std::make_unique<Model<Callable>>(callable)}
+      {}
+
+      R operator()(Args... args) const {return pimpl_->invoke(args...);}
+
+   private:
+      struct Concept //External Polymorphism design pattern
+      {
+         virtual ~Concept() = default;
+         virtual R invoke(Args... args) const = 0; 
+      };
+
+      template <typename Callable>
+      struct Model : public Concept
+      {
+         explicit Model(Callable callable) : callable_{callable}{}
+         R invoke(Args... args) const override{return callable_(args...); }
+         Callable callable_;
+      };
+
+      std::unique_ptr<Concept> pimpl_; // Bridge design pattern
+};
 
 
 //---- <Main.cpp> ---------------------------------------------------------------------------------
@@ -51,7 +81,6 @@ struct Foo {
 
 int main()
 {
-   /*
    {
       auto const fp = foo;  // Function pointer
       test<int(void)>( fp );
@@ -66,7 +95,6 @@ int main()
       auto const lambda = [](){ return "three"; };  // Lambda
       test<std::string(void)>( lambda );
    }
-   */
 
    return EXIT_SUCCESS;
 }
