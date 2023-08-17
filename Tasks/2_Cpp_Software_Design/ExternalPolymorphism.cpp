@@ -50,41 +50,20 @@ struct Point
    double y;
 };
 
-
-//---- <Shape.h> ----------------------------------------------------------------------------------
-
-class Shape
-{
- public:
-   virtual ~Shape() = default;
-
-   virtual void draw() const = 0;
-};
-
-
 //---- <Circle.h> ---------------------------------------------------------------------------------
 
 //#include <Point.h>
-//#include <Shape.h>
-#include <functional>
-#include <stdexcept>
 
-class Circle : public Shape
+class Circle
 {
  public:
-   using DrawStrategy = std::function<void(Circle const&)>;
 
-   explicit Circle( double radius, DrawStrategy drawer )
+   explicit Circle( double radius )
       : radius_( radius )
       , center_()
-      , drawer_( std::move(drawer) )
    {
-      if( !drawer_ ) {
-         throw std::invalid_argument( "Invalid draw strategy" );
-      }
-   }
 
-   void draw() const override { drawer_(*this); }
+   }
 
    double radius() const { return radius_; }
    Point  center() const { return center_; }
@@ -92,33 +71,23 @@ class Circle : public Shape
  private:
    double radius_;
    Point center_;
-   DrawStrategy drawer_;
 };
 
 
 //---- <Square.h> ---------------------------------------------------------------------------------
 
 //#include <Point.h>
-//#include <Shape.h>
-#include <functional>
-#include <stdexcept>
 
-class Square : public Shape
+class Square
 {
  public:
-   using DrawStrategy = std::function<void(Square const&)>;
 
-   explicit Square( double side, DrawStrategy drawer )
+   explicit Square( double side )
       : side_( side )
       , center_()
-      , drawer_( std::move(drawer) )
    {
-      if( !drawer_ ) {
-         throw std::invalid_argument( "Invalid draw strategy" );
-      }
-   }
 
-   void draw() const override { drawer_(*this); }
+   }
 
    double side() const { return side_; }
    Point center() const { return center_; }
@@ -126,7 +95,6 @@ class Square : public Shape
  private:
    double side_;
    Point center_;
-   DrawStrategy drawer_;
 };
 
 
@@ -164,9 +132,26 @@ class TestDrawStrategy
 // TODO: Create an external hierarchy for shapes that represents the polymorphic behavior
 //       of shapes.
 
-class ShapeConcept
-{};
+class ShapeConcept {
+public:
+    virtual ~ShapeConcept() = default;
+    virtual void draw(/*parameters*/) const = 0;
+};
 
+template <typename ShapeT, typename DrawStrategy>
+class ShapeModel : public ShapeConcept {
+public:
+    explicit ShapeModel(ShapeT shape, DrawStrategy drawer)
+        : shape_ { shape }
+        , drawer_{drawer}
+    {
+    }
+    void draw() const override { drawer_(shape_); };
+
+private:
+    ShapeT shape_;
+    DrawStrategy drawer_;
+};
 
 //---- <Shapes.h> ---------------------------------------------------------------------------------
 
@@ -174,7 +159,7 @@ class ShapeConcept
 #include <memory>
 #include <vector>
 
-using Shapes = std::vector< std::unique_ptr<Shape> >;
+using Shapes = std::vector< std::unique_ptr<ShapeConcept> >;
 
 
 //---- <DrawAllShapes.h> --------------------------------------------------------------------------
@@ -210,9 +195,9 @@ int main()
 {
    Shapes shapes{};
 
-   shapes.emplace_back( std::make_unique<Circle>( 2.3, TestDrawStrategy(Color::red) ) );
-   shapes.emplace_back( std::make_unique<Square>( 1.2, TestDrawStrategy(Color::green) ) );
-   shapes.emplace_back( std::make_unique<Circle>( 4.1, TestDrawStrategy(Color::blue) ) );
+   shapes.emplace_back( std::make_unique<ShapeModel<Circle, TestDrawStrategy>>( Circle{2.3}, TestDrawStrategy{Color::red} ) );
+   shapes.emplace_back( std::make_unique<ShapeModel<Square, TestDrawStrategy>>( Square{1.2}, TestDrawStrategy{Color::green} ) );
+   shapes.emplace_back( std::make_unique<ShapeModel<Circle, TestDrawStrategy>>( Circle{4.1}, TestDrawStrategy{Color::blue} ) );
 
    drawAllShapes( shapes );
 
