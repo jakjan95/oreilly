@@ -105,19 +105,49 @@ void draw( const Shape& s )
 
 
 //---- <Translate.h> ------------------------------------------------------------------------------
+class Translate
+{
+ public:
+   explicit Translate( Vector2D translationPoint ) : translationPoint_{translationPoint} {}
+
+   void operator()( Circle& c ) const {
+      const auto newCenter = c.center() + translationPoint_;
+      c.center(newCenter);
+   }
+
+   void operator()( Square& s ) const {
+      const auto newCenter = s.center() + translationPoint_;
+      s.center(newCenter);
+   }
+
+private:
+   Vector2D translationPoint_;
+};
+
 
 void translate( Shape& s, const Vector2D& v )
 {
-   // TODO: Implement the 'translate()' operation
+   std::visit(Translate{v}, s);
 }
 
 
 //---- <Area.h> -----------------------------------------------------------------------------------
+#include <numbers>
+
+struct Area
+{
+   double operator()( const Circle& c ) const {
+      return c.radius() * c.radius() * std::numbers::pi;
+   }
+
+   double operator()( const Square& s ) const {
+      return s.side() * s.side();
+   }
+};
 
 double area( const Shape& s )
 {
-   // TODO: Implement the 'area()' operation
-   return 0.0;
+   return std::visit(Area{}, s);
 }
 
 
