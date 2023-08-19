@@ -56,48 +56,17 @@ struct Point
 };
 
 
-//---- <ShapeVisitor.h> ---------------------------------------------------------------------------
-
-class Circle;
-class Square;
-
-class ShapeVisitor
-{
- public:
-   virtual ~ShapeVisitor() = default;
-
-   virtual void visit( Circle const& ) const = 0;
-   virtual void visit( Square const& ) const = 0;
-};
-
-
-//---- <Shape.h> ----------------------------------------------------------------------------------
-
-//#include <ShapeVisitor.h>
-
-class Shape
-{
- public:
-   virtual ~Shape() = default;
-
-   virtual void accept( ShapeVisitor const& v ) = 0;
-};
-
-
 //---- <Circle.h> ---------------------------------------------------------------------------------
 
 //#include <Point.h>
-//#include <Shape.h>
 
-class Circle : public Shape
+class Circle
 {
  public:
    explicit Circle( double radius )
       : radius_( radius )
       , center_()
    {}
-
-   void accept( ShapeVisitor const& v ) override { v.visit(*this); }
 
    double radius() const { return radius_; }
    Point  center() const { return center_; }
@@ -111,17 +80,14 @@ class Circle : public Shape
 //---- <Square.h> ---------------------------------------------------------------------------------
 
 //#include <Point.h>
-//#include <Shape.h>
 
-class Square : public Shape
+class Square
 {
  public:
    explicit Square( double side )
       : side_( side )
       , center_()
    {}
-
-   void accept( ShapeVisitor const& v ) override { v.visit(*this); }
 
    double side() const { return side_; }
    Point center() const { return center_; }
@@ -136,22 +102,21 @@ class Square : public Shape
 
 //#include <Circle.h>
 //#include <Square.h>
-//#include <ShapeVisitor.h>
 //#include <GraphicsLibrary.h>
 #include <iostream>
 
-class Draw : public ShapeVisitor
+class Draw
 {
  public:
    explicit Draw( Color color ) : color_(color) {}
 
-   void visit( Circle const& circle ) const override
+   void operator()( Circle const& circle ) const
    {
       std::cout << "circle: radius=" << circle.radius()
                 << ", color = " << to_string(color_) << '\n';
    }
 
-   void visit( Square const& square ) const override
+   void operator()( Square const& square ) const
    {
       std::cout << "square: side=" << square.side()
                 << ", color = " << to_string(color_) << '\n';
@@ -173,18 +138,18 @@ class Draw : public ShapeVisitor
 // TODO: Implement the 'area()' operations as a classic visitor. Hint: the area of a
 //       circle is 'radius*radius*M_PI', the area of a square is 'side*side'.
 
-class Area : public ShapeVisitor
+class Area
 {
  public:
    Area() = default;
 
-   void visit( Circle const& circle ) const override
+   void operator()( Circle const& circle ) const
    {
       const double circleArea = circle.radius() * circle.radius()*M_PI;
       std::cout << "circle: area=" << circleArea << '\n';
    }
 
-   void visit( Square const& square ) const override
+   void operator()( Square const& square ) const
    {
       const double squareArea = square.side() * square.side();
       std::cout << "square: area=" << squareArea << '\n';
@@ -194,11 +159,12 @@ class Area : public ShapeVisitor
 
 //---- <Shapes.h> ---------------------------------------------------------------------------------
 
-//#include <Shape.h>
 #include <memory>
 #include <vector>
+#include <variant>
 
-using Shapes = std::vector< std::unique_ptr<Shape> >;
+using Shape = std::variant<Circle, Square>;
+using Shapes = std::vector< Shape >;
 
 
 //---- <DrawAllShapes.h> --------------------------------------------------------------------------
@@ -217,7 +183,7 @@ void drawAllShapes( Shapes const& shapes )
 {
    for( auto const& shape : shapes )
    {
-      shape->accept( Draw{Color::red} );
+      std::visit(Draw{Color::red}, shape);
    }
 }
 
@@ -237,7 +203,7 @@ void areaAllShapes( Shapes const& shapes )
 {
    for( auto const& shape : shapes )
    {
-      shape->accept( Area{} );
+      std::visit(Area{} , shape);
    }
 }
 
@@ -254,9 +220,9 @@ int main()
 {
    Shapes shapes{};
 
-   shapes.emplace_back( std::make_unique<Circle>( 2.3 ) );
-   shapes.emplace_back( std::make_unique<Square>( 1.2 ) );
-   shapes.emplace_back( std::make_unique<Circle>( 4.1 ) );
+   shapes.emplace_back( Circle( 2.3 ) );
+   shapes.emplace_back( Square( 1.2 ) );
+   shapes.emplace_back( Circle( 4.1 ) );
 
    drawAllShapes( shapes );
    areaAllShapes( shapes );
