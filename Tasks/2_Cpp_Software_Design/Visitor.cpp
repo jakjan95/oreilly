@@ -164,10 +164,32 @@ class Draw : public ShapeVisitor
 
 //---- <Area.h> -----------------------------------------------------------------------------------
 
+//#include <Circle.h>
+//#include <Square.h>
+//#include <ShapeVisitor.h>
+#include <iostream>
 #include <cmath>
 
 // TODO: Implement the 'area()' operations as a classic visitor. Hint: the area of a
 //       circle is 'radius*radius*M_PI', the area of a square is 'side*side'.
+
+class Area : public ShapeVisitor
+{
+ public:
+   Area() = default;
+
+   void visit( Circle const& circle ) const override
+   {
+      const double circleArea = circle.radius() * circle.radius()*M_PI;
+      std::cout << "circle: area=" << circleArea << '\n';
+   }
+
+   void visit( Square const& square ) const override
+   {
+      const double squareArea = square.side() * square.side();
+      std::cout << "square: area=" << squareArea << '\n';
+   }
+};
 
 
 //---- <Shapes.h> ---------------------------------------------------------------------------------
@@ -199,6 +221,26 @@ void drawAllShapes( Shapes const& shapes )
    }
 }
 
+//---- <DrawAllShapes.h> --------------------------------------------------------------------------
+
+//#include <Shapes.h>
+
+void drawAllShapes( Shapes const& shapes );
+
+
+//---- <AreaAllShapes.cpp> ------------------------------------------------------------------------
+
+//#include <AreaAllShapes.h>
+//#include <Area.h>
+
+void areaAllShapes( Shapes const& shapes )
+{
+   for( auto const& shape : shapes )
+   {
+      shape->accept( Area{} );
+   }
+}
+
 
 //---- <Main.cpp> ---------------------------------------------------------------------------------
 
@@ -217,6 +259,8 @@ int main()
    shapes.emplace_back( std::make_unique<Circle>( 4.1 ) );
 
    drawAllShapes( shapes );
+   areaAllShapes( shapes );
+
 
    return EXIT_SUCCESS;
 }
