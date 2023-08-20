@@ -202,9 +202,7 @@ void BatteryGen1::charge()
 
 
 //---- <ElectricCar.h> ----------------------------------------------------------------------------
-
-//#include <BatteryGen1.h>
-//#include <ElectricEngineGen1.h>
+#include <type_traits>
 
 class ElectricCar
 {
@@ -215,8 +213,16 @@ class ElectricCar
    // ... more car-specific functions
 
  private:
-   ElectricEngineGen1 engine_;
-   BatteryGen1        battery_;
+
+   struct Impl;
+   Impl* pimpl(){return reinterpret_cast<Impl*>(&buffer_);};
+
+   static constexpr size_t buffersize = 32;
+   static constexpr size_t bufferalign = 8;
+
+   using Buffer = std::aligned_storage<buffersize, bufferalign>::type;
+   Buffer buffer_;
+
 };
 
 
@@ -224,18 +230,33 @@ class ElectricCar
 
 //#include <ElectricCar.h>
 #include <iostream>
+#include <memory>
+
+struct ElectricCar::Impl {
+    Impl()
+        : engine_ { 100 }
+        , battery_ { 80.0 }
+    {
+    }
+
+    ElectricEngineGen1 engine_;
+    BatteryGen1 battery_;
+};
 
 ElectricCar::ElectricCar()
-   : engine_{ 100 }
-   , battery_{ 80.0 }
-{}
+{
+    static_assert(sizeof(Impl) <= sizeof(buffer_));
+    static_assert(alignof(Impl) <= alignof(Buffer));
+
+    std::construct_at(pimpl());
+}
 
 void ElectricCar::drive()
 {
-   engine_.start();
-   battery_.drawPower();
+   pimpl()->engine_.start();
+   pimpl()->battery_.drawPower();
    std::cout << "Driving the 'ElectricCar'...\n";
-   engine_.stop();
+   pimpl()->engine_.stop();
 }
 
 
@@ -267,6 +288,11 @@ int main()
    ecar3.drive();
 
    std::cout << "\n----Destructors----\n";
+
+   std::cout<<"sizeof(ElectricEngineGen1)="<<sizeof(ElectricEngineGen1)<<'\n';
+   std::cout<<"sizeof(BatteryGen1)="<<sizeof(BatteryGen1)<<'\n';
+   std::cout<<"alignof(ElectricEngineGen1)="<<alignof(ElectricEngineGen1)<<'\n';
+   std::cout<<"alignof(BatteryGen1)="<<alignof(BatteryGen1)<<'\n';
 
    return EXIT_SUCCESS;
 }
