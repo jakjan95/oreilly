@@ -124,23 +124,32 @@ class E
    std::string s_;
 };
 
+//---- <Fwd.h> --------------------------------------------------------------------------------------
+class C;
+class E;
 
 //---- <X.h> --------------------------------------------------------------------------------------
 
-#include <cassert>
-#include <iostream>
-#include <list>
-
 //#include <A.h>
 //#include <B.h>
-//#include <C.h>
-//#include <D.h>
-//#include <E.h>
+//#include <Fwd.h>
+
+#include <iosfwd>
+#include <memory>
 
 class X : public A, private B
 {
  public:
    X( const C& );
+
+   ~X();
+
+   X(const X&);
+   X& operator=(const X&);
+   X(X&&)=default;
+   X& operator=(X&&)=default;
+
+
 
    B  f( int, char* );
    C  f( int, C );
@@ -149,21 +158,45 @@ class X : public A, private B
    std::ostream& print( std::ostream& ) const override;
 
  private:
-   std::list<C> clist_;
-   D            d_;
+
+
+   struct Impl;
+   std::unique_ptr<Impl> pimpl_;
+
+
 };
 
 
 //---- <X.cpp> ------------------------------------------------------------------------------------
 
 //#include <X.h>
+//#include <D.h>
+//#include <E.h>
+//#include <C.h>
+
+#include <cassert>
+#include <iostream>
+#include <list>
+
+struct X::Impl {
+    Impl(const C& c)
+        : clist_ { c, c, c }
+        , d_ { "1", "2", "3" }
+    {
+    }
+
+    std::list<C> clist_;
+    D d_;
+};
+
 
 X::X( const C& c )
    : A{}
    , B{ "B" }
-   , clist_{ c, c, c }
-   , d_{ "1", "2", "3" }
+   , pimpl_{std::make_unique<Impl>(c)}
 {}
+
+X::~X()=default;
 
 B X::f( int, char* )
 {
@@ -172,13 +205,13 @@ B X::f( int, char* )
 
 C X::f( int, C )
 {
-   assert( !clist_.empty() );
-   return *begin(clist_);
+   assert( !pimpl_->clist_.empty() );
+   return *begin(pimpl_->clist_);
 }
 
 C& X::g( B )
 {
-   return d_;
+   return pimpl_->d_;
 }
 
 E X::h( E )
