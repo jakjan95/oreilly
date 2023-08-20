@@ -61,9 +61,28 @@ class Sheep
 // TODO: Create an external hierarchy for animals that represents the polymorphic behavior
 //       of animals.
 
-class AnimalConcept
-{};
+class AnimalConcept {
+public:
+    virtual ~AnimalConcept() = default;
+    virtual void makeSound() const = 0;
+};
 
+template <typename AnimalT>
+class AnimalModel : public AnimalConcept {
+public:
+    AnimalModel(AnimalT animal)
+        : animal_ { animal }
+    {
+    }
+
+    void makeSound() const override
+    {
+        free_makeSound(animal_);
+    }
+
+private:
+    AnimalT animal_;
+};
 
 //---- <Animals.h> --------------------------------------------------------------------------------
 
@@ -93,7 +112,7 @@ void free_makeSound( Sheep const& s ) { std::cout << s.name() << ": baa!\n"; }
 
 int main()
 {
-   /*
+   
    Animals animals{};
 
    animals.emplace_back( std::make_unique<AnimalModel<Dog>>( Dog{ "Lassy" } ) );
@@ -103,7 +122,7 @@ int main()
    for( auto const& animal : animals ) {
       animal->makeSound();
    }
-   */
+   
 
    return EXIT_SUCCESS;
 }
