@@ -25,7 +25,55 @@ template< typename Fn >
 class Function;
 
 // TODO: Implement a simplified std::function by means of type erasure.
+template <typename R, typename... Args>
+class Function<R(Args...)> {
+public:
+    template <typename Fn>
+    Function(Fn fn)
+        : pimpl_ { std::make_unique<Model<Fn>>(fn) }
+    {
+    }
 
+    Function(const Function& other)
+        : pimpl_ { other.pimpl_.clone() }
+    {
+    }
+
+    Function& operator=(const Function& other)
+    {
+        Function tmp(other);
+        std::swap(pimpl_, tmp.pimpl_);
+        return *this;
+    }
+
+    ~Function() = default;
+    Function(Function&&) = default;
+    Function& operator=(Function&&) = default;
+
+    R operator()(Args... args) const { return pimpl_->invoke(args...); }
+
+private:
+    struct Concept //External Polymorphism design pattern
+    {
+        virtual ~Concept() = default;
+        virtual R invoke(Args... args) const = 0;
+        virtual std::unique_ptr<Concept> clone() const = 0; //Prototype DP
+    };
+
+    template <typename Fn>
+    struct Model : public Concept {
+        explicit Model(Fn fn)
+            : fn_ { fn }
+        {
+        }
+
+        R invoke(Args... args) const override { return fn_(args...); }
+        std::unique_ptr<Concept> clone() const final { return std::make_unique<Model>(fn_); }
+        Fn fn_;
+    };
+
+    std::unique_ptr<Concept> pimpl_; // Bridge design pattern
+};
 
 //---- <Main.cpp> ---------------------------------------------------------------------------------
 
@@ -51,7 +99,6 @@ struct Foo {
 
 int main()
 {
-   /*
    {
       auto const fp = foo;  // Function pointer
       test<int(void)>( fp );
@@ -66,7 +113,6 @@ int main()
       auto const lambda = [](){ return "three"; };  // Lambda
       test<std::string(void)>( lambda );
    }
-   */
 
    return EXIT_SUCCESS;
 }
