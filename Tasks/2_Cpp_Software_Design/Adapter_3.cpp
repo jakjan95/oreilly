@@ -24,7 +24,15 @@
 
 // TODO: Implement an adapter to seamlessly connect the three functions 'doSomething()',
 //       'doSomethingElse()' and 'doAThirdThing()'.
+using FP = std::optional<double> (*)(double);
 
+std::optional<double> map(FP fn, std::optional<double> d)
+{
+    if (d.has_value()) {
+        return fn(d.value());
+    }
+    return std::nullopt;
+}
 
 //---- <DoSomeWork.h> -----------------------------------------------------------------------------
 
@@ -58,31 +66,13 @@ std::optional<double> doAThirdThing( double d )
    }
 }
 
-std::optional<double> doSomeWork( double d )
+std::optional<double> doSomeWork(double d)
 {
-   // TODO: Refactor this function to avoid the "Pyramid of Doom"
-
-   auto const r1 = doSomething( d );
-   if( r1.has_value() ) {
-      auto const r2 = doSomethingElse(r1.value());
-      if( r2.has_value() ) {
-         auto const r3 = doAThirdThing(r2.value());
-         if( r3.has_value() ) {
-            return r3.value();
-         }
-         else {
-            return std::nullopt;
-         }
-      }
-      else {
-         return std::nullopt;
-      }
-   }
-   else {
-      return std::nullopt;
-   }
+    // TODO: Refactor this function to avoid the "Pyramid of Doom"
+    return map(doAThirdThing,
+        map(doSomethingElse,
+            map(doSomething, std::make_optional(d))));
 }
-
 
 //---- <Main.cpp> ---------------------------------------------------------------------------------
 
