@@ -25,11 +25,20 @@
 
 
 //---- <Algorithm.h> ------------------------------------------------------------------------------
+template <typename Iterator>
+struct iterator_traits {
+    using value_type = typename Iterator::value_type;
+};
+
+template <typename T>
+struct iterator_traits<T*> {
+    using value_type = typename std::remove_cv<T>::type;
+};
 
 template< typename InputIt >
 decltype(auto) accumulate( InputIt first, InputIt last )
 {
-   using value_type = typename InputIt::value_type;
+   using value_type = typename iterator_traits<InputIt>::value_type;
    using return_type = decltype( std::declval<value_type>() + std::declval<value_type>() );
 
    return std::accumulate( first, last, return_type{} );
@@ -50,7 +59,6 @@ int main()
    }
 
    // Built-in array
-   /*
    {
       int array[] = { 1, 2, 3, 4 };
 
@@ -58,7 +66,7 @@ int main()
 
       std::cout << " result = " << result << "\n";
    }
-   */
+   
 
    return EXIT_SUCCESS;
 }
