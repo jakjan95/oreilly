@@ -48,29 +48,59 @@
 #include <utility>
 
 
-template< typename Type, size_t Capacity >
+template< typename Type
+         , size_t Capacity > // Non-type template parameter
 class FixedVector
 {
  public:
-   // TODO:
-   //  - Default constructor
-   //  - Constructor taking the initial size
-   //  - Constructor taking the initial size and initial value of all elements
-   //  - Copy constructor
-   //  - Move constructor
-   //  - Function to query the current number of elements
-   //  - Function to query the maximum number of elements
-   //  - Function to access elements
-   //  - Functions for the STL conformant iteration over elements
-   //  - Copy assignment operator
-   //  - Move assignment operator
-   //  - Function to add elements at the end of the vector
-   //  - Function to change the number of current elements
+   using iterator = Type*;
 
- private:
-   // TODO:
-   //  - Data members
+   FixedVector() = default;
+
+   explicit FixedVector(size_t size) // On-demand instantiation
+   :size_{size}
+   {
+      if(size>Capacity){
+         throw std::invalid_argument{"Capacity exceeded"};
+      }
+
+      std::uninitialized_fill(begin(), end(), Type{});
+
+   }
+
+   size_t size() const;
+
+   iterator begin();
+   iterator end() { return begin() + size_; }
+
+   template<typename... Args>
+   void emplace_back(Args... args);
+
+   private:
+   std::byte array_[Capacity*sizeof(Type)]; // std::byte -> 1 byte size instead unsigned char can be used
+   size_t size_{}; 
 };
+
+template <typename Type, size_t Capacity>
+size_t FixedVector<Type, Capacity>::size() const
+{
+    return size_;
+}
+
+template <typename Type, size_t Capacity>
+auto FixedVector<Type, Capacity>::begin() -> iterator // Trailing return type
+{
+    return reinterpret_cast<Type*>(array_);
+}
+
+template <typename Type, size_t Capacity> // Template parameter list for the class
+template <typename... Args> // Template parameter list for the function
+void FixedVector<Type, Capacity>::emplace_back(Args... args)
+{
+    // TODO: check the current size_
+    std::construct_at(end(), args...);
+    ++size_;
+}
 
 #endif
 
@@ -114,12 +144,11 @@ std::ostream& operator<<( std::ostream& os, Test const& test )
 int main()
 {
    // Default constructor
-   /*
    {
       FixedVector<int,5> v{};
       std::cout << " Default vector: " << v << "\n";
    }
-   */
+   
 
    // Fixed vector with initial size
    /*
