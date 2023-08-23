@@ -24,11 +24,28 @@ std::string operator+( std::string_view lhs, std::string_view rhs )
 }
 
 
+/*
+By addition of two string views, we deduce a result type of the function as the string_view which is a pointer
+despite the operator+ for string_views, we return the addres of a local temporary object
+To fix this problem we can either: 
+- change the return type for the function to auto
+- overload this function for std::string_views
+*/
+
+// Solution 1:
 template< typename T >
-T add( const T& lhs, const T& rhs )
+auto add( const T& lhs, const T& rhs )
 {
    return lhs + rhs;
 }
+
+/*
+// Solution 2:
+std::string add(std::string_view lhs, std::string_view rhs)
+{
+    return lhs + rhs;
+}
+*/
 
 
 int main()
