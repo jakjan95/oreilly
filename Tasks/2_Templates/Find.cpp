@@ -34,18 +34,37 @@ using namespace std::string_literals;
 //         function needs two template type parameters: One represents the function's iterator
 //         parameters, one represents the type of the value to find. Use your function to find a
 //         given value in a 'std::vector<int>' and a 'std::list<std::string>'.
+template <class InputIt, class T>
+InputIt find(InputIt first, InputIt last, const T& value)
+{
+    for (; first != last; ++first) {
+        if (*first == value) {
+            return first;
+        }
+    }
 
+    return last;
+}
 
 // Task 2: Write a function template that acts like the standard library 'find_if()' algorithm.
 //         The function needs two template type parameters: One represents the function's iterator
 //         parameters, one represents the type of a unary predicate used to examine the value.
 //         Use your function to find an even value in a 'std::vector<int>' and a string containing
 //         an 'x' in a 'std::list<std::string>'.
+template <class InputIt, class UnaryPredicate>
+InputIt find_if(InputIt first, InputIt last, UnaryPredicate p)
+{
+    for (; first != last; ++first) {
+        if (p(*first)) {
+            return first;
+        }
+    }
 
+    return last;
+}
 
 int main()
 {
-   /*
    std::vector<int> v{ 3, 5, 2, 7, 5, 4, 3 };
    std::list<std::string> l{ "Herb"s, "Bjarne"s, "Alex"s, "Nicolai"s };
 
@@ -66,9 +85,7 @@ int main()
          std::cout << "Found 'Bjarne' in the list!\n";
       }
    }
-   */
 
-   /*
    // Find the first even value in a std::vector<int>
    {
       auto it = ::find_if( begin(v), end(v), []( int i )
@@ -92,7 +109,6 @@ int main()
          std::cout << "Found '" << *it << "' in the list!\n";
       }
    }
-   */
 
    return EXIT_SUCCESS;
 }
