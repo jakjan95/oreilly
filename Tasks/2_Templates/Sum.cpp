@@ -16,37 +16,11 @@
 #include <cstdlib>
 #include <iostream>
 
-
-int sum( int i1, int i2 )
+template <typename T, typename... Ts>
+auto sum(T value, Ts... values)
 {
-   return i1 + i2;
+    return (value + ... + values);
 }
-
-int sum( int i1, int i2, int i3 )
-{
-   return i1 + i2 + i3;
-}
-
-int sum( int i1, int i2, int i3, int i4 )
-{
-   return i1 + i2 + i3 + i4;
-}
-
-double sum( double i1, double i2 )
-{
-   return i1 + i2;
-}
-
-double sum( double i1, double i2, double i3 )
-{
-   return i1 + i2 + i3;
-}
-
-double sum( double i1, double i2, double i3, double i4 )
-{
-   return i1 + i2 + i3 + i4;
-}
-
 
 int main()
 {
