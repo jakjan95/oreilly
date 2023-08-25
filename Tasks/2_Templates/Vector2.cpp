@@ -67,6 +67,8 @@ class Vector
    void push_back( Type&& s );
 
    // TODO: Add an 'emplace_back()' function.
+   template <typename... Args>
+   void emplace_back(Args&&... args);
 
    size_t size() const;
    size_t capacity() const;
@@ -186,7 +188,17 @@ void Vector<Type,Allocator>::push_back( Type&& v )
 
 
 // TODO: Add an 'emplace_back()' function.
+template <typename Type, typename Allocator>
+template <typename... Args>
+void Vector<Type, Allocator>::emplace_back(Args&&... args)
+{
+    if (end_ == final_) {
+        reallocate();
+    }
 
+    ::construct_at(end_, std::forward<Args>(args)...);
+    ++end_;
+}
 
 template< typename Type, typename Allocator >
 size_t Vector<Type,Allocator>::size() const
@@ -299,7 +311,6 @@ int main()
    std::cout << "\n" << sv2 << "\n\n";
 
    // TODO: Add an 'emplace_back()' function.
-   /*
    Vector<std::string> sv3;
    sv3.emplace_back( 5, 'a' );
    sv3.emplace_back( 3, 'b' );
@@ -307,7 +318,6 @@ int main()
    sv2 = std::move(sv3);
 
    std::cout << "\n" << sv2 << "\n\n";
-   */
 
    return EXIT_SUCCESS;
 }
