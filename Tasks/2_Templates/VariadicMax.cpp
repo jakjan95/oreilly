@@ -33,7 +33,11 @@ constexpr auto max( T1 const& a, T2 const& b )
 
 // 'max()' function template for an arbitrary number of elements
 // TODO
-
+template <typename T, typename... Ts>
+constexpr auto max(const T& value, const Ts&... values)
+{
+    return max(value, max(values...));
+}
 
 // Application of the 'max()' function template to determine the largest given type
 template< typename T, typename... Ts >
@@ -42,8 +46,8 @@ struct Variant
  public:
    // ...
 
-   static constexpr size_t capacity  = 0U;
-   static constexpr size_t alignment = 8U;
+   static constexpr size_t capacity  = max(sizeof(T), sizeof(Ts)...);
+   static constexpr size_t alignment = max(alignof(T), alignof(Ts)...);
 
  private:
    alignas(alignment) std::array<std::byte,capacity> buffer_;
@@ -58,8 +62,8 @@ int main()
                 " max( 1.2, 2.3 )      = " << max( 1.2, 2.3 ) << "\n"
                 " max( 1.2, -4 )       = " << max( 1.2, -4 ) << "\n"
                 " max( 1, 2.8 )        = " << max( 1, 2.8 ) << "\n"
-                //" max( 1, 5, 4 )       = " << max( 1, 5, 4 ) << "\n"
-                //" max( 1, -1.3F, 2.3 ) = " << max( 1, -1.3F, 2.3 ) << "\n"
+                " max( 1, 5, 4 )       = " << max( 1, 5, 4 ) << "\n"
+                " max( 1, -1.3F, 2.3 ) = " << max( 1, -1.3F, 2.3 ) << "\n"
                 "\n";
 
 
