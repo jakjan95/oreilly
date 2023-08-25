@@ -20,19 +20,20 @@
 
 // TODO: Extend the given 'print()' function by variadic templates to enable an arbitrary
 //       number of function arguments.
-template< typename T >
-void print( std::ostream& os, const T& value )
+template< typename... Ts >
+void print( std::ostream& os, const Ts&... values )
 {
-   os << value;
+   (os << ... << values);
 }
 
 
 int main()
 {
-   //print( std::cout, "Hello\n" );
-   //print( std::cout, "Two ", "words\n" );
-   //print( std::cout, "Three ", "different ", "words\n" );
-   //print( std::cout, "Numbers: ", 1, ' ', 1.2, ' ', '\n' );
+   print( std::cout, "Hello\n" );
+   print( std::cout, "Two ", "words\n" );
+   print( std::cout, "Three ", "different ", "words\n" );
+   print( std::cout, "Numbers: ", 1, ' ', 1.2, ' ', '\n' );
+   // last one: (os << ( ... << ' ' << ( << '\n' )))
 
    return EXIT_SUCCESS;
 }
