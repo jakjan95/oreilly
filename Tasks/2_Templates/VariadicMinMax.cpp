@@ -32,7 +32,15 @@ inline auto minmax( T1 const& a, T2 const& b )
 
 // 'minmax()' function template for an arbitrary number of elements
 // TODO
+template <typename T, typename... Ts>
+inline auto minmax(const T& value, const Ts&... values)
+    -> std::pair<std::common_type_t<T, Ts...>, std::common_type_t<T, Ts...>>
+{
+    auto const tmp(minmax(values...));
 
+    return std::make_pair((value < tmp.first) ? value : tmp.first,
+        (value < tmp.second) ? tmp.second : value);
+}
 
 // Auxiliary helper function to print 'std::pair'
 template< typename T1, typename T2 >
@@ -50,8 +58,8 @@ int main()
                 " minmax( 1.2, 2.3 )      = " << minmax( 1.2, 2.3 ) << "\n"
                 " minmax( 1.2, -4 )       = " << minmax( 1.2, -4 ) << "\n"
                 " minmax( 1, 2.8 )        = " << minmax( 1, 2.8 ) << "\n"
-                //" minmax( 1, 5, 4 )       = " << minmax( 1, 5, 4 ) << "\n"
-                //" minmax( 1, -1.3F, 2.3 ) = " << minmax( 1, -1.3F, 2.3 ) << "\n"
+                " minmax( 1, 5, 4 )       = " << minmax( 1, 5, 4 ) << "\n"
+                " minmax( 1, -1.3F, 2.3 ) = " << minmax( 1, -1.3F, 2.3 ) << "\n"
                 "\n";
 
    return EXIT_SUCCESS;
