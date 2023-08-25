@@ -144,9 +144,11 @@ unique_ptr<T>& unique_ptr<T>::operator=( unique_ptr<U>&& u ) noexcept
 
 
 // TODO: Implement a 'make_unique()' function for the 'unique_ptr' base template
-
-
-
+template <typename T, typename... Args, std::enable_if_t<!std::is_array<T>::value>* = nullptr>
+unique_ptr<T> make_unique(Args&&... args)
+{
+    return unique_ptr<T>(new T(std::forward<Args...>(args)...));
+}
 
 template< typename T >
 class unique_ptr<T[]>
@@ -209,9 +211,11 @@ unique_ptr<T[]>& unique_ptr<T[]>::operator=( unique_ptr&& u ) noexcept
 
 
 // TODO: Implement a 'make_unique()' function for the 'unique_ptr' specialization
-
-
-
+template <typename T, typename... Args, std::enable_if_t<std::is_array<T>::value>* = nullptr>
+unique_ptr<T> make_unique(std::size_t size)
+{
+    return unique_ptr<T>(new std::remove_extent_t<T>[size]());
+}
 
 //---- <Main.cpp> ---------------------------------------------------------------------------------
 
@@ -232,6 +236,9 @@ int main()
 
       a = std::move( b );
       std::cout << " b has been moved to a (a=" << a->get() << ")\n\n";
+
+      auto d = make_unique<Widget>(2);
+      std::cout << " d has been created using make_unique (d=" << d->get() << ")\n\n";
    }
 
    // unique_ptr for an array of Widgets
@@ -254,6 +261,12 @@ int main()
 
       a = std::move( b );
       std::cout << " b has been moved to a (a=[" << a[0].get() << "," << a[1].get() << "," << a[2].get() << "])\n\n";
+
+      auto d = make_unique<Widget[]>(2);
+      d[0].set( 11 );
+      d[1].set( 22 );
+      std::cout << " d has been created using make_unique (d=[" << d[0].get() << "," << d[1].get() << "])\n\n";
+
    }
 
    return EXIT_SUCCESS;
