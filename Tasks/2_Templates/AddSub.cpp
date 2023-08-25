@@ -22,17 +22,41 @@
 
 // TODO: Implement the 'addsub()' function, which performs an alternating addition/subtraction
 //       of the given arguments.
+template <typename T>
+constexpr auto subadd(const T& value)
+{
+    return -value;
+}
 
+template <typename T>
+constexpr auto addsub(const T& value)
+{
+    return value;
+}
 
+template <typename T, typename... Ts>
+constexpr auto addsub(const T& value, const Ts&... values);
+
+template <typename T, typename... Ts>
+constexpr auto subadd(const T& value, const Ts&... values)
+{
+    return -value + addsub(values...);
+}
+
+template <typename T, typename... Ts>
+constexpr auto addsub(const T& value, const Ts&... values)
+{
+    return value + subadd(values...);
+}
 
 int main()
 {
-   /*
+   
    std::cout << "\n"
              << " addsub( 10, 9, 8, 7, 6    ) = " << addsub( 10, 9, 8, 7, 6    ) << " (expected: 8)\n"
              << " addsub( 10, 9, 8, 7, 6, 5 ) = " << addsub( 10, 9, 8, 7, 6, 5 ) << " (expected: 3)\n"
              << "\n";
-   */
+   
 
    return EXIT_SUCCESS;
 }
