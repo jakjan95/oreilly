@@ -55,67 +55,108 @@ std::ostream& operator<<( std::ostream& os, Person const& person )
    //return os;
 }
 
+//Not efficient when passed to an algorithms because of the function pointer
+bool is_younger(const Person& lhs, const Person& rhs)
+{
+    return lhs.age < rhs.age;
+}
 
+// This a compiler will optimize and make it inline 
+class IsYounger {
+public:
+    bool operator()(const Person& lhs, const Person& rhs) const // const promises that the call doesn't change this IsYounger object
+    {
+        return lhs.age < rhs.age;
+    }
+};
 
+// Global lambda, ODR used, not a wise idea...
+// auto const isYounger = [](const Person& lhs, const Person& rhs) {
+//     return lhs.age < rhs.age;
+// };
 
 template< typename Table >
 void print( Table const& table )
 {
-   // TODO: Print all persons to the screen
+    for (const auto& person : table) {
+        std::cout << person << '\n';
+    }
 }
 
 template< typename Table >
 void random_order( Table& table )
 {
-   // TODO: Randomize their order ('r')
+    // TODO: Randomize their order ('r')
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(table.begin(), table.end(), g);
 }
 
 template< typename Table >
 void find_youngest( Table const& table )
 {
    // TODO: Find the youngest person ('y')
+   auto const pos = std::min_element(table.cbegin(), table.cend(), IsYounger{});
 
-   //auto const pos = ...;
-   //std::cout << "Youngest person = " << pos->firstname << " " << pos->lastname << "\n";
+   std::cout << "Youngest person = " << pos->firstname << " " << (*pos).lastname << "\n";
 }
 
 template< typename Table >
 void order_by_firstname( Table& table )
 {
    // TODO: Order them by first name ('f')
+   std::sort(table.begin(), table.end(),
+       [](const auto& lhs, const auto& rhs) {
+           return lhs.firstname < rhs.firstname;
+       });
 }
 
 template< typename Table >
 void order_by_lastname( Table& table )
 {
    // TODO: Order them by last name while preserving the order between equal elements ('l')
+   std::stable_sort(table.begin(), table.end(),
+       [](const auto& lhs, const auto& rhs) {
+           return lhs.lastname < rhs.lastname;
+       });
 }
 
 template< typename Table >
 void order_by_age( Table& table )
 {
    // TODO: Order them by age while preserving the order between equal elements ('a')
+   std::stable_sort(table.begin(), table.end(), IsYounger{});
 }
 
 template< typename Table >
 void simpsons_first( Table& table )
 {
    // TODO: Put all Simpsons first without affecting the general order of persons ('s')
+   std::stable_partition(table.begin(), table.end(),
+       [](const Person& person) {
+           return "Simpson" == person.lastname;
+       });
 }
 
 template< typename Table >
 void compute_total_age( Table const& table )
 {
    // TODO: Compute the total age of all persons ('t')
+   int const age = std::accumulate(table.cbegin(), table.cend(), int{},
+       [](auto accu, const auto& person) {
+           return accu + person.age;
+       });
 
-   //int const age = ...;
-   //std::cout << "Total age = " << age << "\n";
+   std::cout << "Total age = " << age << "\n";
 }
 
 template< typename Table >
 void last_to_first( Table& table )
 {
    // TODO: Put the last person first, moving all others by one position ('0')
+   // std::rotate(table.rbegin(), table.rbegin() + 1, table.rend());
+   std::rotate(table.begin(), std::prev(table.end()), table.end());
+   //(first, new first element, last)
 }
 
 template< typename Table >
@@ -123,6 +164,10 @@ void fourth_oldest( Table& table )
 {
    // TODO: Determine the fourth oldest person as quickly as possible ('4')
    //       Note that you are allowed to change the order of persons.
+   std::nth_element(table.begin(), std::next(table.begin(), 3), table.end(),
+       [](const auto& lhs, const auto& rhs) {
+           return lhs.age > rhs.age;
+       });
 }
 
 
