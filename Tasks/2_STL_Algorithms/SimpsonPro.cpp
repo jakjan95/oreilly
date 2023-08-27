@@ -77,13 +77,16 @@ void toupper( std::string& s )
 template< typename Table >
 void print( Table const& table )
 {
-   // TODO: Print all persons to the screen
+    std::for_each(table.cbegin(), table.cend(),
+        [](const auto& el) {
+            std::cout << el << '\n';
+        });
 }
 
 template< typename Table >
 void random_order( Table& table )
 {
-   // TODO: Randomize their order ('r')
+    std::shuffle(table.begin(), table.end(), std::mt19937(std::random_device {}()));
 }
 
 template< typename Table >
@@ -91,14 +94,21 @@ void find_youngest( Table const& table )
 {
    // TODO: Find the youngest person ('y')
 
-   //auto const pos = ...;
-   //std::cout << "Youngest person = " << pos->firstname << " " << pos->lastname << "\n";
+   auto const pos = std::min_element(table.cbegin(), table.cend(),
+       [](const auto& lhs, const auto& rhs) {
+           return lhs.age < rhs.age;
+       });
+   std::cout << "Youngest person = " << pos->firstname << " " << pos->lastname << "\n";
 }
 
 template< typename Table >
 void order_by_lastname( Table& table )
 {
    // TODO: Order them by last name while preserving the order between equal elements ('l')
+   std::stable_sort(table.begin(), table.end(),
+       [](const auto& lhs, const auto& rhs) {
+           return lhs.lastname < rhs.lastname;
+       });
 }
 
 template< typename Table >
@@ -111,6 +121,16 @@ void highlight_lastname( Table& table )
 
    // TODO: Highlight/capitalize the last name of all persons with the given name ('h')
    //       Note that you can use the given 'toupper()' function to capitalize a string.
+   
+   std::transform(table.begin(), table.end(), table.begin(), [&lastname](Person& person) {
+       if (person.lastname == lastname) {
+           std::for_each(std::begin(person.lastname), std::end(person.lastname),
+               [](auto& ch) {
+                   ch = toupper(ch);
+               });
+       }
+       return person;
+   });
 }
 
 template< typename Table >
@@ -118,65 +138,104 @@ void children_first( Table& table )
 {
    // TODO: Put all children first ('c')
    //       Note that you can use the given 'isChild()' function.
+   std::partition(table.begin(), table.end(),
+       [](const auto& el) {
+           return isChild(el);
+       });
 }
 
 template< typename Table >
 void compute_total_lastname_length( Table const& table )
 {
    // TODO: Compute the total length of all last names ('t')
+   const auto lastNamesTotalLength = std::accumulate(table.cbegin(), table.cend(), int {},
+       [](int sum, const Person& person) {
+           return sum + person.lastname.size();
+       });
+
+   std::cout << "Total length of all last names is equal to " << lastNamesTotalLength << '\n';
 }
 
 template< typename Table >
 void same_age( Table const& table )
 {
    // TODO: Check if two adjacent persons have the same age ('s')
+   auto const pos = std::adjacent_find(table.cbegin(), table.cend(),
+       [](const auto& lhs, const auto& rhs) {
+           return lhs.age == rhs.age;
+       });
 
-   //auto const pos = ...;
-
-   //if( pos != table.end() ) {
-   //   std::cout << pos->firstname << " and " << (pos+1)->firstname << " have the same age!\n";
-   //}
-   //else {
-   //   std::cout << "No consecutive persons with the same age found!\n";
-   //}
+   if( pos != table.cend() ) {
+     std::cout << pos->firstname << " and " << (pos+1)->firstname << " have the same age!\n";
+   }
+   else {
+     std::cout << "No consecutive persons with the same age found!\n";
+   }
 }
 
 template< typename Table >
 void maximum_age_difference( Table const& table )
 {
    // TODO: Compute the maximum age difference between two adjacent persons ('d')
+   int const diff = std::inner_product(
+       table.cbegin(), std::prev(table.cend()), std::next(table.cbegin()), 0,
+       [](int accu, int ageDiff) { // operation on results
+           return std::max(accu, ageDiff);
+       },
+       [](const auto& lhs, const auto& rhs) { // result from operation between elements
+           return lhs.age - rhs.age;
+       });
 
-   //int const diff = ...;
-   //std::cout << " Maximum age different = " << diff << "\n";
+   std::cout << " Maximum age different = " << diff << "\n";
 }
 
-template< typename Table >
-void median_age( Table& table )
+template <typename Table>
+void median_age(Table& table)
 {
-   // TODO: Determine the median age of all persons ('m')
+    const auto isYounger = [](const auto& lhs, const auto& rhs) {
+        return lhs.age < rhs.age;
+    };
+    // TODO: Determine the median age of all persons ('m')
+    auto middleElement = std::next(table.begin(), table.size() / 2);
+    std::nth_element(table.begin(), middleElement, table.end(), isYounger);
+
+    middleElement = std::next(table.begin(), table.size() / 2);
+    std::cout << "Median age of all person: " << middleElement->age << '\n';
 }
 
 template< typename Table >
 void find_simpsons( Table& table )
 {
    // TODO: After ordering all persons by last name, find all the Simpsons ('f')
+   auto [begin, end] = std::equal_range(table.begin(), table.end(), Person { "", "Simpson", 0 },
+       [](const auto& lhs, const auto& rhs) {
+           return lhs.lastname < rhs.lastname;
+       });
 
-   //auto [begin,end] = ...;
-
-   //std::cout << "The Simpson:\n";
-   //for( ; begin!=end; ++begin ) {
-   //   std::cout << *begin << '\n';
-   //}
-   //std::cout << '\n';
+   std::cout << "The Simpson:\n";
+   for( ; begin!=end; ++begin ) {
+     std::cout << *begin << '\n';
+   }
+   std::cout << '\n';
 }
 
 template< typename Table >
 void print_children( Table const& table )
 {
    // TODO: Print a string containing the first names of all children ('p')
+   std::string const names = std::accumulate(table.cbegin(), table.cend(), std::string {},
+       [](std::string accu, const auto& person) {
+           if (isChild(person)) {
+               if (!accu.empty()) {
+                   accu += ' ';
+               }
+               accu += person.firstname;
+           }
 
-   //std::string const names = ...;
-   //std::cout << "Children names = " << names << "\n";
+           return std::move(accu);
+       });
+
+   std::cout << "Children names = " << names << "\n";
 }
 
 
