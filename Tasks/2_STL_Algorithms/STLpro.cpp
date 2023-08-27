@@ -19,7 +19,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <iostream>
+#include <iterator>
 #include <numeric>
 #include <vector>
 
@@ -27,57 +29,74 @@
 using Ints    = std::vector<int>;
 using Doubles = std::vector<double>;
 
-
-template< typename T >
-void printVector( std::vector<T> const& numbers )
+template <typename T>
+void printVector(std::vector<T> const& numbers)
 {
-   // TODO: Print all numbers to the screen
+    std::copy(numbers.cbegin(), numbers.cend(), std::ostream_iterator<T>(std::cout, " "));
+    std::cout << '\n';
 }
-
 
 int computeProduct( Ints const& ints )
 {
-   // TODO: Compute the product of all elements in the vector
-
-   return 0;
+    // TODO: Compute the product of all elements in the vector
+    return std::accumulate(ints.cbegin(), ints.cend(), 1, std::multiplies{});
 }
 
-
-Ints extractInts( Ints const& ints )
+Ints extractInts(Ints const& ints)
 {
-   // TODO: Extract all numbers <= 5 from the vector
-
-   return Ints{};
+    // TODO: Extract all numbers <= 5 from the vector
+    Ints intsCopy { ints };
+    intsCopy.erase(std::remove_if(intsCopy.begin(), intsCopy.end(),
+                       [](const auto& val) {
+                           return val <= 5;
+                       }),
+        intsCopy.end());
+    return intsCopy;
 }
 
-
-double computeLength( Ints const& ints )
+double computeLength(Ints const& ints)
 {
-   // TODO: Compute the (numerical) length of the vector
-
-   return 0.0;
+    // TODO: Compute the (numerical) length of the vector
+    const auto sumOfSquares = std::inner_product(ints.cbegin(), ints.cend(), ints.cbegin(), double {});
+    return std::sqrt(sumOfSquares);
 }
-
 
 Doubles computeRatios( Ints const& ints )
 {
    // TODO: Compute the ratios v[i+1]/v[i] for all elements v[i] in v
+   Doubles ratios{};
+   ratios.reserve(ints.size());
 
-   return Doubles{};
+   // std::transform(ints.cbegin(), std::prev(ints.cend()), std::next(ints.cbegin()), std::back_inserter(ratios),
+   //     [](const auto& lhs, const auto& rhs) {
+   //         return rhs / static_cast<double>(lhs);
+   //     });
+
+   std::transform(std::next(ints.cbegin()), ints.cend(), ints.cbegin(), std::back_inserter(ratios),
+       [](double lhs, double rhs) {
+           return lhs / rhs;
+       });
+
+   return ratios;
 }
 
 
 Ints moveRange( Ints const& ints )
 {
    // TODO: Move the range [v[3],v[5]] to the beginning of the vector
+   Ints intsCopy{ints};
+   std::rotate(intsCopy.begin(), std::next(intsCopy.begin(),3),intsCopy.end());
 
-   return Ints{};
+   return intsCopy;
 }
 
 
 int main()
 {
    Ints ints{ 1, 5, 2, 8, 7, 10, 4 };
+
+   std::cout<<"ints:";
+   printVector(ints);
 
    // Compute the product of all elements in v
    {
@@ -88,7 +107,7 @@ int main()
 
    // Extract all numbers <= 5 from the vector
    {
-      std::cout << " All values <= 5: expected = ( 1 5 2 4 ), actual = ";
+      std::cout << " All values <= 5: expected = ( 8 7 10 ), actual = ";
       printVector( extractInts( ints ) );
       std::cout << "\n";
    }
