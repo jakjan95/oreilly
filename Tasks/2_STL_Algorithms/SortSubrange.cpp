@@ -19,13 +19,31 @@
 #include <iostream>
 #include <vector>
 
-
 // TODO: Implement the 'sort_subrange()' algorithm
+template <typename Iterator, typename Comparator>
+void sort_subrange(Iterator first, Iterator last, Iterator subrangeFirst, Iterator subrangeLast, Comparator comparator)
+{
+    if (subrangeFirst == subrangeLast) {
+        return;
+    }
 
+    if (subrangeFirst != first) {
+        std::nth_element(first, subrangeFirst, last, comparator);
+        ++subrangeFirst;
+    }
+
+    std::partial_sort(subrangeFirst, subrangeLast, last, comparator);
+}
+
+template <typename Iterator>
+void sort_subrange(Iterator first, Iterator last, Iterator subrangeFirst, Iterator subrangeLast)
+{
+    std::sort(subrangeFirst, subrangeLast, std::less<>());
+}
 
 int main()
 {
-   /*
+
    std::vector<int> v{ 3, 2, 11, 5, 4, 6, 12, 7, 8, 9, 1, 10 };
 
    // Sort the subrange [begin+2,begin+6) within the range [begin,end) in ascending order
@@ -43,7 +61,7 @@ int main()
    for( int i : v )
       std::cout << ' ' << i;
    std::cout << " )\n\n";
-   */
+   
 
    return EXIT_SUCCESS;
 }
