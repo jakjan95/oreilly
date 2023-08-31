@@ -23,13 +23,23 @@
 #include <string>
 #include <vector>
 
-
-template< typename OutputIterator >
-void extract_strings( std::string s, OutputIterator out )
+template <typename OutputIterator>
+void extract_strings(std::string s, OutputIterator out)
 {
-   // TODO
-}
+    auto actual = s.begin();
 
+    while (actual != s.end()) {
+        auto wordFirst = std::find_if_not(actual, s.end(), isspace);
+        auto wordLast = std::find_if(wordFirst, s.end(), isspace);
+
+        if (wordLast != wordFirst) {
+            *out = std::string(wordFirst, wordLast);
+            out++;
+        }
+
+        actual = wordLast;
+    }
+}
 
 int main()
 {
