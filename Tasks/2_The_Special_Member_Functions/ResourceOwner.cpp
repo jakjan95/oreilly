@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <iomanip>  // For the C++14 'std::quoted'
 #include <iostream>
+#include <pthread.h>
 #include <string>
 #include <utility>
 
@@ -83,16 +84,82 @@ class ResourceOwner
    }
 
    // Step 1: Implement the copy constructor of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner(ResourceOwner const& other)
+       : m_id { other.m_id }
+       , m_name { other.m_name }
+       , m_resource { other.m_resource ? new Resource(*other.m_resource) : nullptr }
+   {
+   }
 
    // Step 1: Implement the copy assignment operator of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner& operator=(ResourceOwner const& other)
+   {
+       // SOLUTION 1: copy-and-swap idiom(not the fastes)
+       if (this != &other) {
+           ResourceOwner tmp { other };
+           swap(tmp);
+       }
+
+       return *this;
+
+      /*
+       // SOLUTION 2
+        if (this == &other) {
+            return *this;
+        }
+
+        delete m_resource;
+
+        m_id = other.m_id;
+        m_name = other.m_name;
+        m_resource = other.m_resource ? new Resource(*other.m_resource) : nullptr;
+
+        return *this;
+      */
+   }
+
+   void swap(ResourceOwner& other)
+   {
+       std::swap(m_id, other.m_id);
+       std::swap(m_name, other.m_name);
+       std::swap(m_resource, other.m_resource);
+   }
 
    // Step 2: Implement the move constructor of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner(ResourceOwner&& other) noexcept
+       : m_id { other.m_id }
+       , m_name { std::move(other.m_name) }
+       //  , m_resource { std::exchange(other.m_resource, nullptr) }
+       , m_resource { other.m_resource }
+   {
+       other.m_resource = nullptr;
+   }
 
    // Step 2: Implement the move assignment operator of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner& operator=(ResourceOwner&& other) noexcept
+   {
+       // SOLUTION 1
+       if (this != &other) {
+           delete m_resource;
+           m_id = other.m_id;
+           m_name = std::move(other.m_name);
+           m_resource = other.m_resource;
+           other.m_resource = nullptr;
+       }
+
+       return *this;
+
+       /*
+       // SOLUTION 2 move and swap idiom
+       if (this != &other) {
+           ResourceOwner tmp(std::move(other));
+           std::swap(m_id, tmp.m_id);
+           std::swap(m_name, tmp.m_name);
+           std::swap(m_resource, tmp.m_resource);
+       }
+       return *this;
+      */
+   }
 
    int                id()       const { return m_id;       }
    std::string const& name()     const { return m_name;     }
@@ -122,15 +189,15 @@ int main()
    std::cout << " owner2: id=" << owner2.id() << ", name=" << std::quoted(owner2.name())
              << ", resource=" << owner2.resource()->get() << ", &resource = " << owner2.resource() << "\n\n";
 
-   //owner1.resource()->set(303);
-   //ResourceOwner owner3( std::move(owner1) );
-   //std::cout << " owner3: id=" << owner3.id() << ", name=" << std::quoted(owner3.name())
-   //          << ", resource=" << owner3.resource()->get() << ", &resource = " << owner3.resource() << "\n\n";
+   owner1.resource()->set(303);
+   ResourceOwner owner3( std::move(owner1) );
+   std::cout << " owner3: id=" << owner3.id() << ", name=" << std::quoted(owner3.name())
+            << ", resource=" << owner3.resource()->get() << ", &resource = " << owner3.resource() << "\n\n";
 
-   //owner2.resource()->set(404);
-   //owner1 = std::move(owner2);
-   //std::cout << " owner1: id=" << owner1.id() << ", name=" << std::quoted(owner1.name())
-   //          << ", resource=" << owner1.resource()->get() << ", &resource = " << owner1.resource() << "\n\n";
+   owner2.resource()->set(404);
+   owner1 = std::move(owner2);
+   std::cout << " owner1: id=" << owner1.id() << ", name=" << std::quoted(owner1.name())
+            << ", resource=" << owner1.resource()->get() << ", &resource = " << owner1.resource() << "\n\n";
 
    return EXIT_SUCCESS;
 }

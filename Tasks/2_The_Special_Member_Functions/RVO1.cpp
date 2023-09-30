@@ -28,10 +28,13 @@ struct S
    ~S() { std::puts( "~S()" ); }
 };
 
+S cresteS() { return S {}; } //Return Value Optimization (RVO)
 
 int main()
 {
-   S s{};
+   // S s1{};
+   // S s2{s1};
+   S s{cresteS()};
 
    return EXIT_SUCCESS;
 }
