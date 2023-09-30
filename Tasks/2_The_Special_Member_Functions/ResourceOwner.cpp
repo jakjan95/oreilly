@@ -83,10 +83,25 @@ class ResourceOwner
    }
 
    // Step 1: Implement the copy constructor of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner(ResourceOwner& other)
+       : m_id { other.m_id }
+       , m_name { other.m_name }
+       , m_resource { other.m_resource ? new Resource(*other.m_resource) : nullptr }
+   {
+   }
 
    // Step 1: Implement the copy assignment operator of class 'ResourceOwner'.
-   // TODO
+   ResourceOwner& operator=(ResourceOwner& other)
+   {
+       if (this != &other) {
+           ResourceOwner tmp { other };
+           std::swap(m_id, tmp.m_id);
+           std::swap(m_name, other.m_name);
+           std::swap(m_resource, other.m_resource);
+       }
+
+       return *this;
+   }
 
    // Step 2: Implement the move constructor of class 'ResourceOwner'.
    // TODO
