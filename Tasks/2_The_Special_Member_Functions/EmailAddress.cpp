@@ -65,6 +65,9 @@ class EmailAddress
    }
 
    // TODO: Implement the special member functions.
+   ~EmailAddress() = default;
+   EmailAddress(const EmailAddress& other) = default;
+   EmailAddress& operator=(const EmailAddress& other) = default;
 
    std::string const& value() const { return address_; }
    bool is_valid() const { return is_email_address( begin(address_), end(address_) ); }
